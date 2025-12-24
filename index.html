@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>PRIMED Certificate Verification</title>
+  <title>PRIMED Risk Reduction Management Training Services Certificate Verification</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="PRIMED Certificate Verifier">
+  <meta property="og:title" content="PRIMED Risk Reduction Management Training Services Certificate Verifier">
   <meta property="og:description" content="Verify your training certificates online quickly and securely.">
   <meta property="og:image" content="https://primed-rrm.github.io/Certificate-Verifier/PRIMED%20Logo%201.png">
   <meta property="og:url" content="https://primed-rrm.github.io/Certificate-Verifier/">
@@ -15,7 +15,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PRIMED Certificate Verifier">
+  <meta name="twitter:title" content="PRIMED Risk Reduction Management Training Services Certificate Verifier">
   <meta name="twitter:description" content="Verify your training certificates online quickly and securely.">
   <meta name="twitter:image" content="https://primed-rrm.github.io/Certificate-Verifier/PRIMED%20Logo%201.png">
 
@@ -43,7 +43,7 @@
     }
     .logo { width: 90px; margin-bottom: 15px; }
     h2 { color: #007bff; margin-bottom: 15px; }
-    input {
+    input, select {
       width: 80%;
       padding: 8px;
       margin-bottom: 10px;
@@ -82,10 +82,22 @@
 <body>
   <div class="container">
     <img src="https://primed-rrm.github.io/Certificate-Verifier/PRIMED%20Logo%201.png" alt="Logo" class="logo">
-    <h2>PRIMED Certificate Verification</h2>
+    <h2>PRIMED PRIMED Risk Reduction Management Training Services Certificate Verification</h2>
 
-    <input type="text" id="searchInput" placeholder="Enter Name / Cert # / Date">
-    <button onclick="verify()">Verify</button>
+    <select id="trainingFilter">
+      <option value="">All Trainings</option>
+      <option value="STOP THE BLEED">Stop The Bleed</option>
+      <option value="Basic Life Support">Basic Life Support</option>
+      <option value="Standard First Aid">Standard First Aid</option>
+      <option value="Basic First Aid">Basic First Aid</option>
+      <option value="Hands-Only CPR">Hands-Only CPR</option>
+      <option value="Introductory to DRRM">Introductory to DRRM</option>
+      <option value="Fire Safety Seminar">Fire Safety Seminar</option>
+      <option value="Earthquake Preparedness">Earthquake Preparedness</option>
+    </select>
+
+    <input type="text" id="certInput" placeholder="Enter Your Certificate Number">
+    <button onclick="verifyCert()">Verify</button>
 
     <div id="qr-reader"></div>
     <div id="result"></div>
@@ -94,65 +106,50 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
 
-    function verify(input) {
-      const searchValue = input || document.getElementById("searchInput").value.trim();
+    function verifyCert(certInput) {
+      const cert = certInput || document.getElementById("certInput").value.trim();
+      const trainingFilter = document.getElementById("trainingFilter").value;
       const resultDiv = document.getElementById("result");
-      resultDiv.textContent = "Searching...";
+      if(!cert) { resultDiv.innerHTML = "<b style='color:red'>Enter Your Certificate Number</b>"; return; }
 
-      if(!searchValue) {
-        resultDiv.innerHTML = "<b style='color:red'>Please enter a Name, Cert #, or Date</b>";
-        return;
-      }
+      resultDiv.textContent = "Checking...";
 
-      fetch(API_URL)
+      fetch(API_URL + "?cert=" + encodeURIComponent(cert))
         .then(res => res.json())
         .then(data => {
-          if(!data || !data.records) {
-            resultDiv.innerHTML = "<b style='color:red'>No data found</b>";
-            return;
+          if(data.found) {
+            if(trainingFilter && data.training !== trainingFilter) {
+              resultDiv.innerHTML = "<b style='color:red'>Certificate does not match selected training ❌</b>";
+              return;
+            }
+
+            resultDiv.innerHTML =
+              "<b>Name:</b> " + data.name + "<br>" +
+              "<b>Certificate Number:</b> " + data.certificate + "<br>" +
+              "<b>Training Date:</b> " + new Date(data.date).toLocaleDateString() + "<br>" +
+              "<b>Training Venue:</b> " + data.venue + "<br>" +
+              "<b>Types of Training:</b> " + data.training;
+          } else {
+            resultDiv.innerHTML = "<b style='color:red'>Certificate not found ❌</b>";
           }
-
-          // filter matches by Name, Cert Number, or Training Date
-          const matches = data.records.filter(rec => {
-            const nameMatch = rec.name.toLowerCase().includes(searchValue.toLowerCase());
-            const certMatch = rec.certificate.toLowerCase().includes(searchValue.toLowerCase());
-            const dateMatch = rec.date.toLowerCase().includes(searchValue.toLowerCase());
-            return nameMatch || certMatch || dateMatch;
-          });
-
-          if(matches.length === 0) {
-            resultDiv.innerHTML = "<b style='color:red'>No matching certificates found ❌</b>";
-            return;
-          }
-
-          // display all matches
-          let html = "";
-          matches.forEach(rec => {
-            html += `<b>Name:</b> ${rec.name}<br>`;
-            html += `<b>Certificate Number:</b> ${rec.certificate}<br>`;
-            html += `<b>Training Date:</b> ${new Date(rec.date).toLocaleDateString()}<br>`;
-            html += `<b>Training Venue:</b> ${rec.venue}<br>`;
-            html += `<b>Types of Training:</b> ${rec.training}<br>`;
-            html += `<hr>`;
-          });
-
-          resultDiv.innerHTML = html;
         })
-        .catch(() => { 
-          resultDiv.innerHTML = "<b style='color:red'>Error connecting to server</b>"; 
+        .catch(() => {
+          resultDiv.innerHTML = "<b style='color:red'>Error connecting to server</b>";
         });
     }
 
-    // QR code scanner
+    // QR Scanner: default camera (back if available)
     function onScanSuccess(decodedText) {
       html5QrcodeScanner.clear().then(() => {
-        document.getElementById("searchInput").value = decodedText;
-        verify(decodedText);
+        document.getElementById("certInput").value = decodedText;
+        verifyCert(decodedText);
       }).catch(err => console.error("QR clear failed", err));
     }
 
     const html5QrcodeScanner = new Html5QrcodeScanner(
-      "qr-reader", { fps: 10, qrbox: 250, rememberLastUsedCamera: true });
+      "qr-reader",
+      { fps: 10, qrbox: 250, rememberLastUsedCamera: true } // default camera is back if available
+    );
     html5QrcodeScanner.render(onScanSuccess);
   </script>
 </body>
