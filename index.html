@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Certificate Verification</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+    }
+    .logo {
+      width: 80px;
+      margin-bottom: 15px;
+    }
+    input {
+      width: 80%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button {
+      padding: 8px 15px;
+      border-radius: 5px;
+      border: none;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #result {
+      margin-top: 10px;
+      text-align: left;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 14px;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    #qr-reader {
+      width: 300px;
+      margin: 10px auto;
+    }
+    .print-btn {
+      margin-top: 10px;
+      background: #28a745;
+    }
+    .print-btn:hover {
+      background: #1e7e34;
+    }
+  </style>
+  <!-- QR code library -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Logo -->
+    <img src="logo hereeeeeeeeeeee" alt="Logo" class="logo">
+    <h2>Certificate Verification</h2>
+
+    <!-- Input and button -->
+    <input type="text" id="cert" placeholder="Enter Certificate Number">
+    <button onclick="verifyCert()">Verify</button>
+
+    <!-- QR code scanner -->
+    <div id="qr-reader"></div>
+
+    <!-- Result -->
+    <div id="result"></div>
+
+    <!-- Print button -->
+    <button class="print-btn" onclick="printResult()">Print</button>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec"; // Google Apps Script URL
+
+    // Main verification function
+    function verifyCert(certInput) {
+      const cert = certInput || document.getElementById("cert").value;
+      const result = document.getElementById("result");
+      result.textContent = "Checking...";
+
+      fetch(API_URL + "?cert=" + encodeURIComponent(cert))
+        .then(res => res.json())
+        .then(data => {
+          if (data.found) {
+            result.innerHTML =
+              "<b style='color:green'>VALID CERTIFICATE ✅</b><br>" +
+              "Name: " + data.name + "<br>" +
+              "Certificate: " + data.certificate + "<br>" +
+              "Training: " + data.training + "<br>" +
+              "Venue: " + data.venue + "<br>" +
+              "Date: " + new Date(data.date).toLocaleDateString();
+            // Beep sound
+            const beep = new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3");
+            beep.play();
+          } else {
+            result.innerHTML = "<b style='color:red'>Certificate not found ❌</b>";
+          }
+        })
+        .catch(() => {
+          result.innerHTML = "<b style='color:red'>Error connecting to server</b>";
+        });
+    }
+
+    // QR Code scanner setup
+    function onScanSuccess(decodedText, decodedResult) {
+      html5QrcodeScanner.clear().then(_ => {
+        document.getElementById("cert").value = decodedText;
+        verifyCert(decodedText);
+      }).catch(err => console.error("QR clear failed", err));
+    }
+
+    var html5QrcodeScanner = new Html5QrcodeScanner(
+      "qr-reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess);
+
+    // Auto verify via URL ?cert=
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      const certParam = params.get('cert');
+      if (certParam) verifyCert(certParam);
+    });
+
+    // Print result
+    function printResult() {
+      const content = document.getElementById('result').innerHTML;
+      const newWin = window.open('', '', 'width=600,height=400');
+      newWin.document.write('<html><head><title>Print Certificate Verification</title></head><body>');
+      newWin.document.write(content);
+      newWin.document.write('</body></html>');
+      newWin.document.close();
+      newWin.print();
+    }
+  </script>
+
+</body>
+</html>
