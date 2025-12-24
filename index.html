@@ -98,7 +98,7 @@
       <option value="Earthquake Preparedness">Earthquake Preparedness</option>
     </select>
 
-    <input type="text" id="cert" placeholder="Enter Control Number">
+    <input type="text" id="cert" placeholder="Enter Certificate Number">
     <button onclick="verifyCert()">Verify</button>
 
     <div id="qr-reader"></div>
@@ -127,7 +127,7 @@
             result.innerHTML =
               "<b style='color:green'>YOUR CERTIFICATE IS VALID ✅</b><br>" +
               "<b>Participant's Name:</b> " + data.name + "<br>" +
-              "<b>Control Number:</b> " + data.certificate + "<br>" +
+              "<b>Certificate Number:</b> " + data.certificate + "<br>" +
               "<b>Types of Training:</b> " + data.training + "<br>" +
               "<b>Training Venue:</b> " + data.venue + "<br>" +
               "<b>Training Date:</b> " + new Date(data.date).toLocaleDateString();
