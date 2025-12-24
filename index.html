@@ -35,7 +35,7 @@
               "Certificate not found.";
           }
         })
-        .catch(err => {
+        .catch(() => {
           document.getElementById("result").textContent =
             "Error connecting to server.";
         });
