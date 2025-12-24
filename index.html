@@ -26,10 +26,10 @@
           if (data.found) {
             document.getElementById("result").textContent =
               "Name: " + data.name + "\n" +
-              "Certificate: " + data.certificate + "\n" +
-              "Training: " + data.training + "\n" +
-              "Venue: " + data.venue + "\n" +
-              "Date: " + new Date(data.date).toLocaleDateString();
+              "Control Number: " + data.certificate + "\n" +
+              "Type of Training: " + data.training + "\n" +
+              "Training Venue: " + data.venue + "\n" +
+              "Training Date: " + new Date(data.date).toLocaleDateString();
           } else {
             document.getElementById("result").textContent =
               "Certificate not found.";
@@ -44,3 +44,4 @@
 
 </body>
 </html>
+
