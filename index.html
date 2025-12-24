@@ -1,244 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <title>PRIMED Risk Reduction Management Training Services Certificate Verification</title>
+  <title>PRIMED Certificate Verification</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Open Graph / Messenger Preview -->
-  <meta property="og:title" content=PRIMED Risk Reduction Management Training Services Certificate Verifier">
-  <meta property="og:description" content="Verify and download your training certificate securely.">
+  <!-- Open Graph -->
+  <meta property="og:title" content="PRIMED Certificate Verifier">
+  <meta property="og:description" content="Verify your training certificates online quickly and securely.">
   <meta property="og:image" content="https://primed-rrm.github.io/Certificate-Verifier/PRIMED%20Logo%201.png">
   <meta property="og:url" content="https://primed-rrm.github.io/Certificate-Verifier/">
   <meta property="og:type" content="website">
   <meta property="fb:app_id" content="1384616316725467">
 
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PRIMED Certificate Verifier">
+  <meta name="twitter:description" content="Verify your training certificates online quickly and securely.">
+  <meta name="twitter:image" content="https://primed-rrm.github.io/Certificate-Verifier/PRIMED%20Logo%201.png">
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
     body {
-      font-family: Roboto, sans-serif;
-      background: #f4f6f9;
+      font-family: 'Roboto', sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       margin: 0;
-      padding: 20px;
     }
     .container {
-      max-width: 420px;
       background: #fff;
-      margin: auto;
-      padding: 20px;
+      padding: 25px 30px;
       border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.15);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      width: 95%;
+      max-width: 480px;
       text-align: center;
+      position: relative;
     }
-    img.logo {
-      width: 90px;
-      margin-bottom: 10px;
-    }
-    h2 {
-      color: #0056b3;
-      font-size: 18px;
-    }
-    select, input, button {
-      width: 90%;
+    .logo { width: 90px; margin-bottom: 15px; }
+    h2 { color: #007bff; margin-bottom: 15px; }
+    input {
+      width: 80%;
       padding: 8px;
-      margin: 8px 0;
+      margin-bottom: 10px;
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 14px;
     }
     button {
-      background: #0056b3;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #003f88;
-    }
-    #qr-reader {
-      width: 250px;
-      margin: 10px auto;
-    }
-    #result {
-      text-align: left;
-      background: #f1f3f6;
-      padding: 10px;
+      padding: 8px 18px;
       border-radius: 6px;
-      margin-top: 10px;
+      border: none;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
       font-size: 14px;
+      margin-bottom: 10px;
     }
-    .download-btn {
-      background: #28a745;
+    button:hover { background: #0056b3; }
+    #result {
+      margin-top: 12px;
+      text-align: left;
+      max-height: 250px;
+      overflow-y: auto;
+      font-size: 14px;
+      background: #f0f3f7;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
     }
-    .download-btn:hover {
-      background: #1e7e34;
-    }
-    #hidden-qr {
-      display: none;
-    }
+    #qr-reader { width: 90%; max-width: 300px; margin: 10px auto; }
   </style>
+
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 
 <body>
-<div class="container">
+  <div class="container">
+    <img src="https://primed-rrm.github.io/Certificate-Verifier/PRIMED%20Logo%201.png" alt="Logo" class="logo">
+    <h2>PRIMED Certificate Verification</h2>
 
-  <img src="https://primed-rrm.github.io/Certificate-Verifier/PRIMED%20Logo%201.png" class="logo">
-  <h2>PRIMED Risk Reduction Management Training Services Certificate Verification</h2>
+    <input type="text" id="searchInput" placeholder="Enter Name / Cert # / Date">
+    <button onclick="verify()">Verify</button>
 
-  <select id="trainingFilter">
-    <option value="">Select Training</option>
-    <option value="STOP THE BLEED">Stop The Bleed</option>
-    <option value="Basic Life Support">Basic Life Support</option>
-    <option value="Standard First Aid">Standard First Aid</option>
-    <option value="Basic First Aid">Basic First Aid</option>
-    <option value="Earthquake Preparedness">Earthquake Preparedness</option>
-    <option value="Fire Safety Seminar">Fire Safety Seminar</option>
-  </select>
+    <div id="qr-reader"></div>
+    <div id="result"></div>
+  </div>
 
-  <input type="text" id="cert" placeholder="Enter Control Number">
-  <button onclick="verifyCert()">Verify</button>
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
 
-  <div id="qr-reader"></div>
+    function verify(input) {
+      const searchValue = input || document.getElementById("searchInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = "Searching...";
 
-  <div id="result"></div>
-  <button class="download-btn" onclick="downloadPDF()" style="display:none" id="downloadBtn">
-    Download Certificate (PDF)
-  </button>
-
-</div>
-
-<div id="hidden-qr"></div>
-
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
-
-let certData = null;
-
-/* ================= VERIFY ================= */
-function verifyCert(inputCert) {
-  const cert = inputCert || document.getElementById("cert").value.trim();
-  const trainingFilter = document.getElementById("trainingFilter").value;
-  const result = document.getElementById("result");
-  const downloadBtn = document.getElementById("downloadBtn");
-
-  if (!cert) return;
-
-  result.innerHTML = "Checking...";
-  downloadBtn.style.display = "none";
-
-  fetch(API_URL + "?cert=" + encodeURIComponent(cert))
-    .then(res => res.json())
-    .then(data => {
-      if (!data.found) {
-        result.innerHTML = "<b style='color:red'>Certificate not found ❌</b>";
+      if(!searchValue) {
+        resultDiv.innerHTML = "<b style='color:red'>Please enter a Name, Cert #, or Date</b>";
         return;
       }
 
-      if (trainingFilter && data.training !== trainingFilter) {
-        result.innerHTML = "<b style='color:red'>Training mismatch ❌</b>";
-        return;
-      }
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          if(!data || !data.records) {
+            resultDiv.innerHTML = "<b style='color:red'>No data found</b>";
+            return;
+          }
 
-      certData = data;
+          // filter matches by Name, Cert Number, or Training Date
+          const matches = data.records.filter(rec => {
+            const nameMatch = rec.name.toLowerCase().includes(searchValue.toLowerCase());
+            const certMatch = rec.certificate.toLowerCase().includes(searchValue.toLowerCase());
+            const dateMatch = rec.date.toLowerCase().includes(searchValue.toLowerCase());
+            return nameMatch || certMatch || dateMatch;
+          });
 
-      result.innerHTML = `
-        <b style="color:green">YOUR CERTIFICATE IS VALID ✅</b><br><br>
-        <b>Name:</b> ${data.name}<br>
-        <b>Control No:</b> ${data.certificate}<br>
-        <b>Training:</b> ${data.training}<br>
-        <b>Venue:</b> ${data.venue}<br>
-        <b>Date:</b> ${new Date(data.date).toLocaleDateString()}<br>
-        <b>Instructor:</b> ${data.instructor}
-      `;
+          if(matches.length === 0) {
+            resultDiv.innerHTML = "<b style='color:red'>No matching certificates found ❌</b>";
+            return;
+          }
 
-      downloadBtn.style.display = "block";
-    })
-    .catch(() => {
-      result.innerHTML = "<b style='color:red'>Server error</b>";
-    });
-}
+          // display all matches
+          let html = "";
+          matches.forEach(rec => {
+            html += `<b>Name:</b> ${rec.name}<br>`;
+            html += `<b>Certificate Number:</b> ${rec.certificate}<br>`;
+            html += `<b>Training Date:</b> ${new Date(rec.date).toLocaleDateString()}<br>`;
+            html += `<b>Training Venue:</b> ${rec.venue}<br>`;
+            html += `<b>Types of Training:</b> ${rec.training}<br>`;
+            html += `<hr>`;
+          });
 
-/* ================= QR SCANNER (BACK CAMERA) ================= */
-function onScanSuccess(decodedText) {
-  html5QrcodeScanner.clear().then(() => {
-    document.getElementById("cert").value = decodedText;
-    verifyCert(decodedText);
-  });
-}
+          resultDiv.innerHTML = html;
+        })
+        .catch(() => { 
+          resultDiv.innerHTML = "<b style='color:red'>Error connecting to server</b>"; 
+        });
+    }
 
-const html5QrcodeScanner = new Html5QrcodeScanner(
-  "qr-reader",
-  {
-    fps: 10,
-    qrbox: 250,
-    rememberLastUsedCamera: true,
-    facingMode: { exact: "environment" }
-  }
-);
-html5QrcodeScanner.render(onScanSuccess);
+    // QR code scanner
+    function onScanSuccess(decodedText) {
+      html5QrcodeScanner.clear().then(() => {
+        document.getElementById("searchInput").value = decodedText;
+        verify(decodedText);
+      }).catch(err => console.error("QR clear failed", err));
+    }
 
-/* ================= WORDINGS ================= */
-function trainingWording(training) {
-  const map = {
-    "STOP THE BLEED": "has successfully completed the STOP THE BLEED® Training",
-    "Basic Life Support": "has successfully completed the BASIC LIFE SUPPORT Training",
-    "Standard First Aid": "has successfully completed the STANDARD FIRST AID Training",
-    "Basic First Aid": "has successfully completed the BASIC FIRST AID Training",
-    "Earthquake Preparedness": "has completed the EARTHQUAKE PREPAREDNESS SEMINAR",
-    "Fire Safety Seminar": "has completed the FIRE SAFETY SEMINAR"
-  };
-  return map[training] || "has completed the training program";
-}
-
-/* ================= PDF WITH QR ================= */
-function downloadPDF() {
-  if (!certData) return;
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape");
-
-  const verifyURL = "https://primed-rrm.github.io/Certificate-Verifier/?cert=" + certData.certificate;
-
-  // Generate QR
-  const qrDiv = document.getElementById("hidden-qr");
-  qrDiv.innerHTML = "";
-  new QRCode(qrDiv, {
-    text: verifyURL,
-    width: 120,
-    height: 120
-  });
-
-  setTimeout(() => {
-    const qrImg = qrDiv.querySelector("img");
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(26);
-    doc.text("CERTIFICATE OF COMPLETION", 148, 40, { align: "center" });
-
-    doc.setFontSize(18);
-    doc.text(certData.name, 148, 70, { align: "center" });
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(14);
-    doc.text(trainingWording(certData.training), 148, 90, { align: "center" });
-
-    doc.text(`Training Venue: ${certData.venue}`, 148, 110, { align: "center" });
-    doc.text(`Training Date: ${new Date(certData.date).toLocaleDateString()}`, 148, 125, { align: "center" });
-    doc.text(`Instructor: ${certData.instructor}`, 148, 138, { align: "center" });
-    doc.text(`Control No: ${certData.certificate}`, 148, 150, { align: "center" });
-
-    // QR placement
-    doc.addImage(qrImg.src, "PNG", 240, 120, 40, 40);
-
-    doc.save(certData.certificate + ".pdf");
-  }, 300);
-}
-</script>
-
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      "qr-reader", { fps: 10, qrbox: 250, rememberLastUsedCamera: true });
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
 </body>
 </html>
