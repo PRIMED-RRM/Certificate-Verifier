@@ -28,27 +28,25 @@
 body {
   font-family: 'Roboto', sans-serif;
   background: var(--bg-color);
-  height:100vh;
-  width:100%;
-  overflow:hidden;
-  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 0;
 }
 
 .container {
-  position: absolute;
-  top:50%;
-  left:50%;
-  transform: translate(-50%, -50%);
-  width:95%;
-  max-width:500px;
   background: var(--card-bg);
-  border-radius:18px;
+  border-radius: 18px;
   box-shadow: 0 12px 35px rgba(0,0,0,0.15);
-  padding:20px 20px 30px;
-  text-align:center;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  padding: 20px 20px 30px;
+  width: 95%;
+  max-width: 500px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .logo-wrap {
@@ -117,12 +115,12 @@ select, input {
 }
 
 footer {
-  margin-top: 18px;
+  margin-top: 20px;
   font-size: 12px;
   text-align: center;
   color: #555;
   line-height: 1.4;
-  word-wrap: break-word;
+  width: 100%;
 }
 </style>
 </head>
@@ -175,8 +173,9 @@ footer {
 </div>
 
 <footer>
-  &copy; 2025 All Rights Reserved | PRIMED RRMTS / ACER-FRCI<br>
-  acerfrci@gmail.com | +63 946 247 6586</footer>
+  &copy; 2025 All Rights Reserved | PRIMED RRMTS<br>
+  acerfrci@gmail.com | +63 946 247 6586
+</footer>
 
 <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
@@ -225,13 +224,14 @@ function onScanSuccess(text){
   });
 }
 
-// Async load QR scanner library
+// Async load of QR scanner
 const loadQR = () => {
   const script = document.createElement("script");
   script.src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js";
-  script.async = true;
+  script.onload = ()=>console.log("QR library loaded");
   document.body.appendChild(script);
 };
+
 document.addEventListener("DOMContentLoaded", loadQR);
 
 document.getElementById("openScannerBtn").onclick=()=>{
