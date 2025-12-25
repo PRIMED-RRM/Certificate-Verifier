@@ -11,33 +11,107 @@
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      background: linear-gradient(120deg,#e0f7fa,#ffffff);
-      margin: 0; min-height: 100vh;
-      display: flex; justify-content: center; align-items: center;
+      background: linear-gradient(135deg, #e3f2fd, #ffffff);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .container {
-      background:#fff; border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.15);
-      padding:30px; width:95%; max-width:520px; text-align:center;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+      padding: 32px;
+      width: 95%;
+      max-width: 540px;
+      text-align: center;
     }
-    .logo { width:100px; margin-bottom:20px; }
-    h1 { font-size:20px; color:#007bff; margin-bottom:20px; }
-    select,input { width:80%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid #ccc; font-size:14px; }
-    .btn { padding:10px 20px; margin:5px; border:none; border-radius:8px; font-weight:500; cursor:pointer; font-size:14px; transition:all 0.3s;}
-    .btn-primary { background:linear-gradient(90deg,#007bff,#0056b3); color:#fff; }
-    .btn-primary:hover { background:linear-gradient(90deg,#0056b3,#003f7f); }
-    .btn-secondary { background:#f0f0f0; color:#333; }
-    .btn-secondary:hover { background:#e0e0e0; }
-    #result { margin-top:20px; text-align:left; font-size:14px; background:#f7f9fc; padding:15px; border-radius:10px; border:1px solid #ddd; max-height:280px; overflow-y:auto; }
-    #qr-reader { width:90%; max-width:300px; margin:20px auto; display:none; }
-    .valid { color:green; font-weight:600; }
-    .invalid { color:red; font-weight:600; }
+    .logo {
+      width: 110px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 20px;
+      color: #0d6efd;
+      margin-bottom: 10px;
+    }
+    .description {
+      font-size: 13.5px;
+      color: #333;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+    select, input {
+      width: 85%;
+      padding: 10px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .btn {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, #0d6efd, #084298);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+    .btn-secondary {
+      background: #f1f1f1;
+      color: #333;
+    }
+    .btn-secondary:hover {
+      background: #e1e1e1;
+    }
+    #qr-reader {
+      width: 90%;
+      max-width: 300px;
+      margin: 20px auto;
+      display: none;
+    }
+    #result {
+      margin-top: 20px;
+      text-align: left;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .valid { color: green; font-weight: 600; }
+    .invalid { color: red; font-weight: 600; }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png" alt="PRIMED Logo" class="logo">
+    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png"
+         alt="PRIMED Logo" class="logo">
+
     <h1>PRIMED Risk Reduction Management Training Services Certificate Verifier</h1>
+
+    <p class="description">
+      <b>PRIMED Risk Reduction Management Training Services</b> 
+      (Preparedness and Risk-Informed Medical Emergency Development) is the official training arm of 
+      <b>ACER – Fire Rescue & Communication, Inc.</b>, a SEC-registered organization.
+      <br><br>
+      PRIMED aims to enhance preparedness by sharing practical knowledge and life-saving skills,
+      empowering individuals, responders, and communities to become ready and capable in medical,
+      emergency, disaster, and risk-related situations.
+    </p>
 
     <select id="trainingFilter">
       <option value="">All Trainings</option>
@@ -61,73 +135,93 @@
 
     <div id="qr-reader"></div>
     <div id="result"></div>
-    <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
+    <audio id="beep-sound"
+      src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+      preload="auto"></audio>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
 
-    function verifyCert(certInput){
-      const cert = certInput || document.getElementById("certInput").value.trim();
+    function verifyCert(inputValue) {
+      const cert = inputValue || document.getElementById("certInput").value.trim();
       const filter = document.getElementById("trainingFilter").value;
       const resultDiv = document.getElementById("result");
-      if(!cert){ resultDiv.innerHTML="<span class='invalid'>Enter Your Certificate Number</span>"; return; }
 
-      resultDiv.textContent="Checking...";
-      fetch(API_URL+"?cert="+encodeURIComponent(cert))
-      .then(res=>res.json())
-      .then(data=>{
-        if(data.found){
-          if(filter && data.training!==filter){
-            resultDiv.innerHTML="<span class='invalid'>Certificate does not match selected training ❌</span>"; return;
-          }
-          resultDiv.innerHTML=`<span class='valid'>YOUR CERTIFICATE IS VALID ✅</span><br>
-            <b>Name:</b> ${data.name}<br>
-            <b>Certificate Number:</b> ${data.certificate}<br>
-            <b>Training Date:</b> ${new Date(data.date).toLocaleDateString()}<br>
-            <b>Training Venue:</b> ${data.venue}<br>
-            <b>Types of Training:</b> ${data.training}`;
-        } else resultDiv.innerHTML="<span class='invalid'>Certificate not found ❌</span>";
-      }).catch(()=>{resultDiv.innerHTML="<span class='invalid'>Error connecting to server</span>";});
-    }
-
-    let html5QrcodeScanner;
-    const qrReaderDiv=document.getElementById('qr-reader');
-    const openBtn=document.getElementById('openScannerBtn');
-    const flashBtn=document.getElementById('toggleFlashBtn');
-    let currentCameraId=null, torchOn=false;
-
-    function onScanSuccess(decodedText){
-      const beep=document.getElementById("beep-sound"); beep.currentTime=0; beep.play();
-      if(navigator.vibrate) navigator.vibrate(200);
-      html5QrcodeScanner.clear().then(()=>{
-        qrReaderDiv.style.display='none';
-        document.getElementById("certInput").value=decodedText;
-        verifyCert(decodedText);
-      }).catch(err=>console.error("QR clear failed",err));
-    }
-
-    openBtn.addEventListener('click',()=>{
-      if(qrReaderDiv.style.display==='block'){
-        html5QrcodeScanner.clear().then(()=>qrReaderDiv.style.display='none'); return;
+      if (!cert) {
+        resultDiv.innerHTML = "<span class='invalid'>Enter Your Certificate Number</span>";
+        return;
       }
-      qrReaderDiv.style.display='block';
-      if(!html5QrcodeScanner){
-        html5QrcodeScanner=new Html5Qrcode("qr-reader");
-        Html5Qrcode.getCameras().then(cameras=>{
-          if(cameras && cameras.length){
-            currentCameraId=cameras[0].id;
-            html5QrcodeScanner.start(currentCameraId, {fps:10, qrbox:250}, onScanSuccess);
-          }
-        });
-      } else html5QrcodeScanner.start(currentCameraId, {fps:10, qrbox:250}, onScanSuccess);
-    });
 
-    flashBtn.addEventListener('click',()=>{
-      if(!html5QrcodeScanner || !currentCameraId) return;
-      torchOn=!torchOn;
-      html5QrcodeScanner.applyVideoConstraints({advanced:[{torch:torchOn}]})
-        .catch(()=>console.log("Flashlight not supported"));
+      resultDiv.textContent = "Checking...";
+
+      fetch(API_URL + "?cert=" + encodeURIComponent(cert))
+        .then(res => res.json())
+        .then(data => {
+          if (data.found) {
+            if (filter && data.training !== filter) {
+              resultDiv.innerHTML = "<span class='invalid'>Certificate does not match selected training ❌</span>";
+              return;
+            }
+            resultDiv.innerHTML = `
+              <span class='valid'>YOUR CERTIFICATE IS VALID ✅</span><br><br>
+              <b>Name:</b> ${data.name}<br>
+              <b>Certificate Number:</b> ${data.certificate}<br>
+              <b>Training Date:</b> ${new Date(data.date).toLocaleDateString()}<br>
+              <b>Training Venue:</b> ${data.venue}<br>
+              <b>Training:</b> ${data.training}
+            `;
+          } else {
+            resultDiv.innerHTML = "<span class='invalid'>Certificate not found ❌</span>";
+          }
+        })
+        .catch(() => {
+          resultDiv.innerHTML = "<span class='invalid'>Error connecting to server</span>";
+        });
+    }
+
+    let qr;
+    let cameraId = null;
+    let torch = false;
+
+    function onScanSuccess(text) {
+      document.getElementById("beep-sound").play();
+      if (navigator.vibrate) navigator.vibrate(200);
+
+      qr.stop().then(() => {
+        document.getElementById("qr-reader").style.display = "none";
+        document.getElementById("certInput").value = text;
+        verifyCert(text);
+      });
+    }
+
+    document.getElementById("openScannerBtn").onclick = () => {
+      const reader = document.getElementById("qr-reader");
+
+      if (reader.style.display === "block") {
+        qr.stop().then(() => reader.style.display = "none");
+        return;
+      }
+
+      reader.style.display = "block";
+      qr = new Html5Qrcode("qr-reader");
+
+      Html5Qrcode.getCameras().then(cams => {
+        cameraId = cams[0].id;
+        qr.start(cameraId, { fps: 10, qrbox: 250 }, onScanSuccess);
+      });
+    };
+
+    document.getElementById("toggleFlashBtn").onclick = () => {
+      if (!qr) return;
+      torch = !torch;
+      qr.applyVideoConstraints({ advanced: [{ torch: torch }] })
+        .catch(() => console.log("Flashlight not supported"));
+    };
+
+    document.getElementById("certInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") verifyCert();
     });
   </script>
 </body>
