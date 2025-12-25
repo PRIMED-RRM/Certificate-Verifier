@@ -6,7 +6,6 @@
 <title>PRIMED Certificate Verifier</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 
 <style>
 :root {
@@ -180,6 +179,7 @@ footer {
 <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script>
+// Fast shared link optimizations
 const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
 let qr, torch=false;
 
@@ -189,7 +189,6 @@ function verifyCert(inputValue){
   const resultDiv = document.getElementById("result");
   if(!cert){ resultDiv.innerHTML="<span class='invalid'>Enter your certificate number</span>"; return; }
   resultDiv.textContent="Checking...";
-
   fetch(`${API_URL}?cert=${encodeURIComponent(cert)}`, {cache:"no-store"})
     .then(res=>res.json())
     .then(data=>{
@@ -224,7 +223,18 @@ function onScanSuccess(text){
   });
 }
 
+// Async load of QR scanner
+const loadQR = () => {
+  const script = document.createElement("script");
+  script.src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js";
+  script.onload = ()=>console.log("QR library loaded");
+  document.body.appendChild(script);
+};
+
+document.addEventListener("DOMContentLoaded", loadQR);
+
 document.getElementById("openScannerBtn").onclick=()=>{
+  if(!window.Html5Qrcode){ alert("QR library still loading..."); return; }
   const reader=document.getElementById("qr-reader");
   if(reader.style.display==="block"){ qr.stop().then(()=>reader.style.display="none"); return; }
   reader.style.display="block";
