@@ -25,7 +25,7 @@
     body { font-family: 'Roboto', sans-serif; background: #f5f7fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
     .container { background: #fff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); width: 95%; max-width: 480px; text-align: center; position: relative; }
     .logo { width: 90px; margin-bottom: 15px; }
-    h2 { color: #007bff; margin-bottom: 15px; }
+    h2 { color: #007bff; margin-bottom: 15px; font-size: 16px; }
     input, select { width: 80%; padding: 8px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
     button { padding: 8px 18px; border-radius: 6px; border: none; background: #007bff; color: white; cursor: pointer; font-size: 14px; margin-bottom: 10px; }
     button:hover { background: #0056b3; }
@@ -59,6 +59,9 @@
 
     <div id="qr-reader"></div>
     <div id="result"></div>
+
+    <!-- Short, loud scanner beep -->
+    <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
   </div>
 
   <script>
@@ -101,6 +104,17 @@
     const openBtn = document.getElementById('openScannerBtn');
 
     function onScanSuccess(decodedText) {
+      // Play short, loud beep
+      const beep = document.getElementById("beep-sound");
+      beep.currentTime = 0;
+      beep.play();
+
+      // Vibrate mobile devices (if supported)
+      if (navigator.vibrate) {
+        navigator.vibrate(200); // vibrate for 200ms
+      }
+
+      // Clear scanner and verify
       html5QrcodeScanner.clear().then(() => {
         qrReaderDiv.style.display = 'none';
         document.getElementById("certInput").value = decodedText;
