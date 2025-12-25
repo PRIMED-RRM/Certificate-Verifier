@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRIMED Certificate Verifier</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- HTML5 QR Code -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(120deg, #e0f7fa, #ffffff);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      padding: 30px;
+      width: 95%;
+      max-width: 500px;
+      text-align: center;
+      position: relative;
+      transition: transform 0.3s;
+    }
+
+    .container:hover {
+      transform: translateY(-3px);
+    }
+
+    .logo {
+      width: 100px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 20px;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+
+    select, input {
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #007bff, #0056b3);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(90deg, #0056b3, #003f7f);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    #result {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 14px;
+      background: #f7f9fc;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    #qr-reader {
+      width: 90%;
+      max-width: 300px;
+      margin: 20px auto;
+      display: none;
+    }
+
+    .valid { color: green; font-weight: 600; }
+    .invalid { color: red; font-weight: 600; }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <img src="https://primed-rrm.github.io/primedrrmverifier/PRIMED-Logo-1.png" alt="PRIMED Logo" class="logo">
+    <h1>PRIMED Certificate Verifier</h1>
+
+    <select id="trainingFilter">
+      <option value="">All Trainings</option>
+      <option value="STOP THE BLEED">Stop The Bleed</option>
+      <option value="Basic Life Support">Basic Life Support</option>
+      <option value="Standard First Aid">Standard First Aid</option>
+      <option value="Basic First Aid">Basic First Aid</option>
+      <option value="Hands-Only CPR">Hands-Only CPR</option>
+      <option value="Introductory to DRRM">Introductory to DRRM</option>
+      <option value="Fire Safety Seminar">Fire Safety Seminar</option>
+      <option value="Earthquake Preparedness">Earthquake Preparedness</option>
+    </select>
+
+    <input type="text" id="certInput" placeholder="Enter Your Certificate Number">
+
+    <div>
+      <button class="btn btn-primary" onclick="verifyCert()">Verify</button>
+      <button class="btn btn-secondary" id="openScannerBtn">Open QR Scanner</button>
+    </div>
+
+    <div id="qr-reader"></div>
+    <div id="result"></div>
+
+    <!-- Scanner beep -->
+    <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
+
+    function verifyCert(certInput) {
+      const cert = certInput || document.getElementById("certInput").value.trim();
+      const trainingFilter = document.getElementById("trainingFilter").value;
+      const resultDiv = document.getElementById("result");
+      if (!cert) { resultDiv.innerHTML = "<span class='invalid'>Enter Your Certificate Number</span>"; return; }
+
+      resultDiv.textContent = "Checking...";
+
+      fetch(API_URL + "?cert=" + encodeURIComponent(cert))
+        .then(res => res.json())
+        .then(data => {
+          if(data.found){
+            if(trainingFilter && data.training !== trainingFilter){
+              resultDiv.innerHTML = "<span class='invalid'>Certificate does not match selected training ❌</span>";
+              return;
+            }
+
+            resultDiv.innerHTML = `
+              <span class='valid'>YOUR CERTIFICATE IS VALID ✅</span><br>
+              <b>Name:</b> ${data.name}<br>
+              <b>Certificate Number:</b> ${data.certificate}<br>
+              <b>Training Date:</b> ${new Date(data.date).toLocaleDateString()}<br>
+              <b>Training Venue:</b> ${data.venue}<br>
+              <b>Types of Training:</b> ${data.training}
+            `;
+          } else {
+            resultDiv.innerHTML = "<span class='invalid'>Certificate not found ❌</span>";
+          }
+        })
+        .catch(() => { resultDiv.innerHTML = "<span class='invalid'>Error connecting to server</span>"; });
+    }
+
+    // QR Scanner
+    let html5QrcodeScanner;
+    const qrReaderDiv = document.getElementById('qr-reader');
+    const openBtn = document.getElementById('openScannerBtn');
+
+    function onScanSuccess(decodedText) {
+      // beep
+      const beep = document.getElementById("beep-sound");
+      beep.currentTime = 0;
+      beep.play();
+
+      // vibrate
+      if(navigator.vibrate) navigator.vibrate(200);
+
+      html5QrcodeScanner.clear().then(() => {
+        qrReaderDiv.style.display = 'none';
+        document.getElementById("certInput").value = decodedText;
+        verifyCert(decodedText);
+      }).catch(err => console.error("QR clear failed", err));
+    }
+
+    openBtn.addEventListener('click', () => {
+      if(qrReaderDiv.style.display === 'block'){
+        html5QrcodeScanner.clear().then(() => qrReaderDiv.style.display = 'none');
+        return;
+      }
+
+      qrReaderDiv.style.display = 'block';
+      if(!html5QrcodeScanner){
+        html5QrcodeScanner = new Html5QrcodeScanner(
+          "qr-reader",
+          { fps: 10, qrbox: 250, rememberLastUsedCamera: true }
+        );
+        html5QrcodeScanner.render(onScanSuccess);
+      }
+    });
+  </script>
+
+</body>
+</html>
