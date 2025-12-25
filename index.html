@@ -3,14 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRIMED Risk Reduction Management Training Services</title>
+<title>PRIMED Certificate Verifier</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <style>
 :root {
   --bg-color: #e3f2fd;
-  --card-bg: #fff;
+  --card-bg: #ffffff;
   --text-color: #333;
   --primary-color: #0d6efd;
   --secondary-color: #084298;
@@ -28,40 +29,22 @@ body {
   background: var(--bg-color);
   margin: 0;
   min-height: 100vh;
-}
-
-nav {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 12px 20px;
-  background: var(--card-bg);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-nav .logo img {
-  height: 50px;
-}
-
-nav .settings-icon {
-  font-size: 22px;
-  cursor: pointer;
-  color: var(--primary-color);
+  flex-direction: column;
 }
 
 .container {
-  max-width: 900px;
-  margin: 30px auto;
   background: var(--card-bg);
   border-radius: 18px;
   box-shadow: 0 12px 35px rgba(0,0,0,0.15);
   padding: 28px;
+  width: 95%;
+  max-width: 540px;
+  text-align: center;
+  margin-top: 20px;
 }
-
-h2 { color: var(--primary-color); margin-top: 0; }
 
 .logo-wrap {
   display: flex;
@@ -73,6 +56,28 @@ h2 { color: var(--primary-color); margin-top: 0; }
 .logo-wrap img {
   height: 70px;
   object-fit: contain;
+}
+
+.org-title {
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 6px;
+}
+.main-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 18px;
+  letter-spacing: 0.5px;
+}
+
+.description {
+  font-size: 13px;
+  color: var(--text-color);
+  margin-bottom: 22px;
+  line-height: 1.5;
 }
 
 select, input {
@@ -109,107 +114,48 @@ select, input {
   overflow-y: auto;
 }
 
-.result-note { margin-top: 8px; font-size: 11.5px; color: #666; line-height: 1.4; }
+.result-note, .contact-info {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: #555;
+  line-height: 1.4;
+}
+
 .valid { color: green; font-weight: 600; }
 .invalid { color: red; font-weight: 600; }
 
-section { margin-bottom: 40px; }
-footer { text-align: center; padding: 12px; background: var(--card-bg); margin-top: 30px; color: var(--text-color); }
-
-/* SETTINGS MODAL */
-#settingsModal {
-  display: none;
-  position: fixed;
-  z-index: 50;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  overflow: auto;
-  background: rgba(0,0,0,0.4);
+footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #555;
 }
 
-#settingsModal .modal-content {
-  background: var(--card-bg);
-  margin: 10% auto;
-  padding: 20px;
-  border-radius: 12px;
-  width: 280px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-}
-
-#settingsModal .modal-content h3 {
-  margin-top: 0;
-  color: var(--primary-color);
-}
-
-#settingsModal .modal-content a, #settingsModal .modal-content button {
-  display: block;
-  width: 100%;
-  margin: 8px 0;
-  padding: 10px;
+#toggleThemeBtn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 10px;
   border: none;
-  border-radius: 8px;
-  text-align: left;
-  text-decoration: none;
-  background: #f1f1f1;
-  color: var(--text-color);
   cursor: pointer;
-}
-
-#settingsModal .modal-content button { background: var(--primary-color); color: #fff; }
-#settingsModal .close-btn {
-  float: right;
-  cursor: pointer;
-  font-weight: bold;
-  color: var(--secondary-color);
+  background: var(--primary-color);
+  color: #fff;
+  font-weight: 500;
 }
 </style>
 </head>
+
 <body data-theme="light">
 
-<nav>
-  <div class="logo">
-    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png" alt="PRIMED Logo">
-  </div>
-  <div class="settings-icon" id="openSettings">&#9881;</div>
-</nav>
+<div class="container">
 
-<!-- SETTINGS MODAL -->
-<div id="settingsModal">
-  <div class="modal-content">
-    <span class="close-btn" id="closeSettings">&times;</span>
-    <h3>Settings</h3>
-    <a href="#home">Home</a>
-    <a href="#dashboard">Dashboard</a>
-    <a href="#about">About Us</a>
-    <a href="#verify">Certificate Verification</a>
-    <a href="#contact">Contact Us</a>
-    <button id="toggleThemeBtnModal">Toggle Light/Dark Mode</button>
-    <a href="#" id="suggestChangesBtn">Suggest Changes</a>
-  </div>
-</div>
-
-<!-- HOME -->
-<section id="home" class="container">
-  <h2>Welcome to PRIMED Risk Reduction Management Training Services</h2>
-  <p>PRIMED is the official training arm of <b>ACER – Fire Rescue & Communication, Inc.</b> We provide life-saving and preparedness training to help individuals and communities become ready and resilient.</p>
-  <p><b>Email:</b> acerfrci@gmail.com<br>
-     <b>Phone:</b> +63 946 247 6586<br>
-     <b>Address:</b> Vergara St., Brgy. Vergara, Mandaluyong City - NCR</p>
-</section>
-
-<!-- DASHBOARD -->
-<section id="dashboard" class="container">
-  <h2>Dashboard</h2>
-  <p>Overview of trainings, certificates, and upcoming sessions. (Coming Soon)</p>
-</section>
-
-<!-- CERTIFICATE VERIFICATION -->
-<section id="verify" class="container">
   <div class="logo-wrap">
     <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png" alt="PRIMED Logo">
     <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/BackgroundEraser_20251102_093006990.png" alt="ACER Logo">
   </div>
-  <h2>CERTIFICATE VERIFIER</h2>
+
+  <div class="org-title">PRIMED RISK REDUCTION MANAGEMENT TRAINING SERVICES</div>
+  <div class="main-title">CERTIFICATE VERIFIER</div>
+
   <select id="trainingFilter">
     <option value="">All Trainings</option>
     <option value="STOP THE BLEED">Stop The Bleed</option>
@@ -221,37 +167,37 @@ footer { text-align: center; padding: 12px; background: var(--card-bg); margin-t
     <option value="Fire Safety Seminar">Fire Safety Seminar</option>
     <option value="Earthquake Preparedness">Earthquake Preparedness</option>
   </select>
+
   <input type="text" id="certInput" placeholder="Enter Your Certificate Number">
+
   <div>
     <button class="btn btn-primary" onclick="verifyCert()">Verify</button>
     <button class="btn btn-secondary" id="openScannerBtn">Open QR Scanner</button>
     <button class="btn btn-secondary" id="toggleFlashBtn">Toggle Flashlight</button>
   </div>
+
   <div id="qr-reader"></div>
   <div id="result"></div>
-  <div class="result-note">Verification results are based on official PRIMED training records.</div>
-  <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
-</section>
 
-<!-- ABOUT US -->
-<section id="about" class="container">
-  <h2>About Us</h2>
-  <p><b>Our Journey:</b> PRIMED was established to provide life-saving and disaster preparedness training for individuals and communities. As part of ACER Fire Rescue & Communication, Inc., we aim to enhance readiness and response capabilities.</p>
-  <p><b>Mission:</b> Equip communities with knowledge and skills to save lives and mitigate risks.</p>
-  <p><b>Vision:</b> A prepared, resilient, and safe society.</p>
-</section>
+  <div class="result-note">
+    Verification results are based on official PRIMED training records.
+    This confirms participation and completion only and does not imply government certification nor international accreditation/certifications.
+  </div>
 
-<!-- CONTACT -->
-<section id="contact" class="container">
-  <h2>Contact Us</h2>
-  <p><b>Email:</b> acerfrci@gmail.com<br>
-     <b>Phone:</b> +63 946 247 6586<br>
-     <b>Address:</b> Vergara St., Brgy. Vergara, Mandaluyong City - NCR</p>
-</section>
+  <div class="contact-info">
+    PRIMED Risk Reduction Management Training Services / ACER – Fire Rescue & Communication, Inc.<br>
+    Email: primedrrm@gmail.com | acerfrci@gmail.com | Phone: +63 946 247 6586<br>
+    Address: Vergara St., Brgy. Vergara, Mandaluyong City - NCR
+  </div>
+
+  <button id="toggleThemeBtn">Light/Dark Mode</button>
+</div>
 
 <footer>
-  &copy; 2025 PRIMED Risk Reduction Management Training Services | All rights reserved.
+  &copy; 2025 All Rights Reserved | PRIMED Risk Reduction Management Training Services / ACER – Fire Rescue & Communication, Inc.
 </footer>
+
+<audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
@@ -307,32 +253,12 @@ document.getElementById("toggleFlashBtn").onclick=()=>{
 
 document.getElementById("certInput").addEventListener("keydown",e=>{ if(e.key==="Enter") verifyCert(); });
 
-// SETTINGS MODAL
-const modal = document.getElementById("settingsModal");
-document.getElementById("openSettings").onclick = ()=>{ modal.style.display="block"; }
-document.getElementById("closeSettings").onclick = ()=>{ modal.style.display="none"; }
-window.onclick = e => { if(e.target==modal) modal.style.display="none"; }
-
-// LIGHT/DARK MODE TOGGLE
-const themeBtnModal=document.getElementById("toggleThemeBtnModal");
-themeBtnModal.addEventListener("click", ()=>{
-  const body=document.body;
-  body.dataset.theme=body.dataset.theme==="light"?"dark":"light";
-});
-
-// SUGGEST CHANGES EMAIL
-document.getElementById("suggestChangesBtn").addEventListener("click", ()=>{
-  const selectedTraining = document.getElementById("trainingFilter").value || "None";
-  const subject = encodeURIComponent("Suggestion / Correction for PRIMED Certificate Verifier");
-  const body = encodeURIComponent(
-    `Hello PRIMED Team,%0D%0A%0D%0A`+
-    `I would like to suggest a change or report an issue.%0D%0A`+
-    `Page URL: ${window.location.href}%0D%0A`+
-    `Selected Training: ${selectedTraining}%0D%0A%0D%0A`+
-    `Details:%0D%0A`
-  );
-  window.location.href = `mailto:acerfrci@gmail.com?subject=${subject}&body=${body}`;
+// LIGHT/DARK MODE
+document.getElementById("toggleThemeBtn").addEventListener("click", ()=>{
+  const body = document.body;
+  body.dataset.theme = body.dataset.theme==="light" ? "dark" : "light";
 });
 </script>
+
 </body>
 </html>
