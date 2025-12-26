@@ -198,9 +198,13 @@ function verify(cert){
           res.innerHTML="TRAINING DOES NOT MATCH THE SELECTED FILTER ❌";
           return;
         }
-        beep.play();
-   const dateObj = d.date ? new Date(d.date) : null;
-const dateOnly = dateObj ? (dateObj.getMonth()+1) + "/" + dateObj.getDate() + "/" + dateObj.getFullYear() : "";
+
+        // VIBRATE AND LOUD BEEP
+        if("vibrate" in navigator){ navigator.vibrate([200,100,200]); }
+        for(let i=0;i<2;i++){ beep.play(); }
+
+        const dateObj = d.date ? new Date(d.date) : null;
+        const dateOnly = dateObj ? (dateObj.getMonth()+1).toString().padStart(2,'0') + "/" + dateObj.getDate().toString().padStart(2,'0') + "/" + dateObj.getFullYear() : "";
 
         const certLink = `${window.location.origin}${window.location.pathname}?cert=${encodeURIComponent(d.certificate)}`;
         res.innerHTML=`
@@ -269,7 +273,8 @@ function scanLoop(){
   const qr=jsQR(img.data, canvas.width, canvas.height);
 
   if(qr){
-    beep.play();
+    if("vibrate" in navigator){ navigator.vibrate([200,100,200]); }
+    for(let i=0;i<2;i++){ beep.play(); }
     document.getElementById("certInput").value=qr.data;
     toggleScanner();
     verify(qr.data);
