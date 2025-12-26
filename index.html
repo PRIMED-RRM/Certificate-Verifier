@@ -3,21 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Test QR Scanner</title>
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+<title>Test Load</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.10/min/html5-qrcode.min.js"></script>
 </head>
 <body>
-<h2>Test QR Code Scanner Load</h2>
-<button id="testLoad">Test Load html5-qrcode</button>
-<div id="msg"></div>
+<button id="check">Check if Html5Qrcode loaded</button>
+<div id="status"></div>
 
 <script>
-document.getElementById('testLoad').onclick = () => {
+document.getElementById('check').onclick = () => {
   if (typeof Html5Qrcode !== 'undefined') {
-    document.getElementById('msg').innerText = 'Html5Qrcode is loaded!';
+    document.getElementById('status').innerText = 'Loaded!';
   } else {
-    document.getElementById('msg').innerText = 'Html5Qrcode is NOT loaded!';
+    document.getElementById('status').innerText = 'Not loaded!';
   }
 };
 </script>
