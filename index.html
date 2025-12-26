@@ -13,18 +13,20 @@ body{
   background:linear-gradient(180deg,#eef3f9,#f9fbfd);
   display:flex;
   justify-content:center;
-  align-items:center;
-  height:100vh;
+  align-items:flex-start;
+  min-height:100vh;
   margin:0;
+  padding-top:20px;
 }
 .container{
   background:#fff;
   padding:26px;
   border-radius:14px;
   width:95%;
-  max-width:480px;
+  max-width:600px;
   box-shadow:0 8px 28px rgba(0,0,0,.15);
   text-align:center;
+  position:relative;
 }
 .logos{
   display:flex;
@@ -67,6 +69,7 @@ button{
 .primary{background:#0d6efd;color:#fff}
 .scan{background:#198754;color:#fff}
 .browser{background:#6c757d;color:#fff}
+.danger{background:#dc3545;color:#fff}
 
 #scanner{
   display:none;
@@ -107,10 +110,52 @@ footer{
   margin-top:6px;
   color:#555;
 }
+
+#adminButton{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:#0d6efd;
+  color:#fff;
+  border:none;
+  padding:6px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+#adminPanel{
+  display:none;
+  text-align:left;
+  margin-top:20px;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:10px;
+  background:#f9f9f9;
+}
+
+#adminPanel input, #adminPanel select{
+  width:95%;
+  margin:6px 0;
+}
+#traineeTable{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+#traineeTable th, #traineeTable td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:12px;
+}
+#traineeTable th{
+  background:#e9ecef;
+}
 </style>
 </head>
 <body>
 <div class="container">
+
+<button id="adminButton" onclick="toggleAdminLogin()">Admin Sign In</button>
 
 <div class="logos">
   <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png">
@@ -165,10 +210,39 @@ This verification is based solely on PRIMED records and is not a government cert
 
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
+<!-- Admin Panel -->
+<div id="adminPanel">
+  <h3>Admin Panel - Trainee Management</h3>
+  <input type="text" id="adminName" placeholder="Full Name">
+  <input type="text" id="adminCert" placeholder="Certificate #">
+  <select id="adminTraining">
+    <option value="">Select Training</option>
+    <option value="STOP THE BLEED">Stop The Bleed</option>
+    <option value="Standard First Aid">Standard First Aid (SFAT)</option>
+    <option value="Basic First Aid">Basic First Aid (BFAT)</option>
+    <option value="Basic Life Support">Basic Life Support (BLS)</option>
+    <option value="CPR">CPR</option>
+    <option value="Basic Fire Safety Seminar">Basic Fire Safety Seminar</option>
+    <option value="Introduction to DRRM">Introduction to DRRM</option>
+    <option value="Earthquake Preparedness Seminar">Earthquake Preparedness Seminar</option>
+  </select>
+  <input type="text" id="adminVenue" placeholder="Venue">
+  <input type="date" id="adminDate">
+  <button class="primary" onclick="addTrainee()">Add Trainee</button>
+
+  <h4>All Trainees</h4>
+  <table id="traineeTable">
+    <thead>
+      <tr>
+        <th>Name</th><th>Certificate #</th><th>Training</th><th>Venue</th><th>Date</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
+const API_URL="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // replace with your Apps Script URL
 const beep=document.getElementById("beep");
 
 /* ENTER KEY */
@@ -180,27 +254,20 @@ document.getElementById("certInput").addEventListener("keydown", e=>{
 const ua=navigator.userAgent.toLowerCase();
 const isInApp = ua.includes("fbav") || ua.includes("fban") || ua.includes("instagram");
 
-function openInBrowser(){
-  window.open(window.location.href,"_blank");
-}
+function openInBrowser(){ window.open(window.location.href,"_blank"); }
 
 /* VERIFY */
 function verify(cert){
   const c=cert||document.getElementById("certInput").value.trim();
   const filter=document.getElementById("trainingFilter").value;
   const res=document.getElementById("result");
-
-  if(!c){res.innerHTML=" </b>PLEASE ENTER YOUR CERTIFICATE NUMBER<br>";return;}
+  if(!c){res.innerHTML="PLEASE ENTER YOUR CERTIFICATE NUMBER<br>";return;}
   res.innerHTML="Verifying…";
-
   fetch(API_URL+"?cert="+encodeURIComponent(c))
     .then(r=>r.json())
     .then(d=>{
       if(d.found){
-        if(filter && d.training!==filter){
-          res.innerHTML=" TRAINING DOES NOT MATCH SELECTED FILTER ❌";
-          return;
-        }
+        if(filter && d.training!==filter){ res.innerHTML="TRAINING DOES NOT MATCH SELECTED FILTER ❌"; return;}
         beep.play();
         res.innerHTML=`
           <b style="color:green">CERTIFICATE VERIFIED ✅</b><br><br>
@@ -210,72 +277,104 @@ function verify(cert){
           <b>Training Date:</b> ${new Date(d.date).toLocaleDateString()}<br>
           <b>Training Venue:</b> ${d.venue}
         `;
-      }else{
-        res.innerHTML=" </b>CERTIFICATE NOT FOUND<br> ❌";
-      }
+      }else{ res.innerHTML="CERTIFICATE NOT FOUND ❌"; }
     })
-    .catch(()=>res.innerHTML=" </b>SERVER ERROR<br> ❌");
+    .catch(()=>res.innerHTML="SERVER ERROR ❌");
 }
 
 /* QR SCANNER */
 let stream=null, scanning=false;
-
 function toggleScanner(){
-  if(isInApp){
-    document.getElementById("browserNotice").style.display="block";
-    return;
-  }
-
+  if(isInApp){ document.getElementById("browserNotice").style.display="block"; return; }
   const scanner=document.getElementById("scanner");
   const video=document.getElementById("video");
-
-  if(scanning){
-    stream.getTracks().forEach(t=>t.stop());
-    scanner.style.display="none";
-    scanning=false;
-    return;
-  }
-
+  if(scanning){ stream.getTracks().forEach(t=>t.stop()); scanner.style.display="none"; scanning=false; return; }
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
-    .then(s=>{
-      stream=s;
-      video.srcObject=s;
-      scanner.style.display="block";
-      scanning=true;
-
-      video.onloadedmetadata = () => {
-        video.play();
-        scanLoop();
-      };
-    })
-    .catch(()=>{
-      document.getElementById("result").innerHTML=
-        "❌ Camera access denied. Please allow camera permission in browser settings.";
-    });
+    .then(s=>{ stream=s; video.srcObject=s; scanner.style.display="block"; scanning=true;
+      video.onloadedmetadata = () => { video.play(); scanLoop(); }; })
+    .catch(()=>{ document.getElementById("result").innerHTML="Camera access denied ❌"; });
 }
-
 function scanLoop(){
   if(!scanning) return;
   const video=document.getElementById("video");
   const canvas=document.getElementById("canvas");
   const ctx=canvas.getContext("2d");
-
-  const scale = 400 / Math.max(video.videoWidth, video.videoHeight);
-  canvas.width = video.videoWidth * scale;
-  canvas.height = video.videoHeight * scale;
-
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+  ctx.drawImage(video,0,0);
   const img=ctx.getImageData(0,0,canvas.width,canvas.height);
-  const qr=jsQR(img.data, canvas.width, canvas.height);
-
-  if(qr){
-    beep.play();
-    document.getElementById("certInput").value=qr.data;
-    toggleScanner();
-    verify(qr.data);
-    return;
-  }
+  const qr=jsQR(img.data,canvas.width,canvas.height);
+  if(qr){ beep.play(); document.getElementById("certInput").value=qr.data; toggleScanner(); verify(qr.data); return; }
   requestAnimationFrame(scanLoop);
+}
+
+/* ADMIN PANEL */
+let isAdmin=false;
+function toggleAdminLogin(){
+  if(!isAdmin){
+    const pass=prompt("Enter Admin Password:");
+    if(pass==="PRIMEDAdmin123"){ isAdmin=true; document.getElementById("adminPanel").style.display="block"; loadTrainees(); }
+    else alert("Incorrect Password!");
+  } else { isAdmin=false; document.getElementById("adminPanel").style.display="none"; }
+}
+
+// Load trainees
+function loadTrainees(){
+  fetch(API_URL+"?action=list")
+    .then(r=>r.json())
+    .then(data=>{
+      const tbody=document.querySelector("#traineeTable tbody");
+      tbody.innerHTML="";
+      data.forEach((t,i)=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+          <td>${t.name}</td>
+          <td>${t.certificate}</td>
+          <td>${t.training}</td>
+          <td>${t.venue}</td>
+          <td>${new Date(t.date).toLocaleDateString()}</td>
+          <td>
+            <button class="primary" onclick="editTrainee(${i})">Update</button>
+            <button class="danger" onclick="deleteTrainee(${i})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+}
+
+// Add trainee
+function addTrainee(){
+  const name=document.getElementById("adminName").value;
+  const certificate=document.getElementById("adminCert").value;
+  const training=document.getElementById("adminTraining").value;
+  const venue=document.getElementById("adminVenue").value;
+  const date=document.getElementById("adminDate").value;
+  if(!name||!certificate||!training||!venue||!date){ alert("Please fill all fields"); return; }
+  fetch(API_URL+"?action=add",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name,certificate,training,venue,date})})
+  .then(r=>r.json()).then(res=>{ alert(res.message); loadTrainees(); });
+}
+
+// Delete trainee
+function deleteTrainee(index){
+  if(!confirm("Delete this trainee?")) return;
+  fetch(API_URL+"?action=delete",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({index})})
+  .then(r=>r.json()).then(res=>{ alert(res.message); loadTrainees(); });
+}
+
+// Update trainee
+function editTrainee(index){
+  fetch(API_URL+"?action=list").then(r=>r.json()).then(data=>{
+    const t=data[index];
+    const name=prompt("Full Name",t.name);
+    const certificate=prompt("Certificate #",t.certificate);
+    const training=prompt("Training",t.training);
+    const venue=prompt("Venue",t.venue);
+    const date=prompt("Date (YYYY-MM-DD)",t.date);
+    if(name && certificate && training && venue && date){
+      fetch(API_URL+"?action=update",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({index,name,certificate,training,venue,date})})
+      .then(r=>r.json()).then(res=>{ alert(res.message); loadTrainees(); });
+    }
+  });
 }
 </script>
 </body>
