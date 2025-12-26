@@ -2,19 +2,21 @@
 <html lang="en">
 <head>
   <title>PRIMED Risk Reduction Management Training Services Certificate Verifier</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="PRIMED Certificate Verifier">
-  <meta property="og:description" content="Verify PRIMED-issued training certificates securely and instantly.">
-  <meta property="og:image" content="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png">
-  <meta property="og:type" content="website">
+  <meta property="og:title" content="PRIMED Certificate Verifier" />
+  <meta property="og:description" content="Verify PRIMED-issued training certificates securely and instantly." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png" />
+  <meta property="og:type" content="website" />
 
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
 
   <!-- html5-qrcode library -->
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.10/html5-qrcode.js"></script>
+  <!-- jsQR library for image decoding -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 
   <style>
     body{
@@ -116,13 +118,12 @@
     }
   </style>
 </head>
-
 <body>
 <div class="container">
 
   <div class="logos">
-    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png" alt="PRIMED Logo">
-    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/BackgroundEraser_20251102_093006990.png" alt="ACER Logo">
+    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png" alt="PRIMED Logo" />
+    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/BackgroundEraser_20251102_093006990.png" alt="ACER Logo" />
   </div>
 
   <h2>CERTIFICATE VERIFIER</h2>
@@ -145,13 +146,13 @@
     <option value="Earthquake Preparedness Seminar">Earthquake Preparedness Seminar</option>
   </select>
 
-  <input type="text" id="certInput" placeholder="Enter Your Certificate Number">
+  <input type="text" id="certInput" placeholder="Enter Your Certificate Number" />
 
   <div>
     <button class="btn btn-primary" onclick="verifyCert()">Submit</button>
     <button class="btn btn-scan" id="openScannerBtn">Scan QR Code</button>
     <button class="btn btn-upload" id="uploadQRBtn">Upload QR Code</button>
-    <input type="file" id="qrFileInput" accept="image/*" style="display:none">
+    <input type="file" id="qrFileInput" accept="image/*" style="display:none" />
   </div>
 
   <div id="qr-reader"></div>
@@ -171,86 +172,105 @@
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw";
 
 // Verify certificate
-function verifyCert(certInput){
+function verifyCert(certInput) {
   const cert = certInput || document.getElementById("certInput").value.trim();
   const res = document.getElementById("result");
-  if(!cert){
-    res.innerHTML="<b style='color:red'>Please enter a certificate number.</b>";
+  if (!cert) {
+    res.innerHTML = "<b style='color:red'>Please enter a certificate number.</b>";
     return;
   }
 
-  res.innerHTML="Verifying…";
+  res.innerHTML = "Verifying…";
 
-  fetch(API_URL+"?cert="+encodeURIComponent(cert))
-    .then(r=>r.json())
-    .then(d=>{
-      if(d.found){
-        res.innerHTML="<b style='color:green'>CERTIFICATE VERIFIED ✅</b><br><br>"+
-        "<b>Name:</b> "+d.name+"<br>"+
-        "<b>Certificate #:</b> "+d.certificate+"<br>"+
-        "<b>Training:</b> "+d.training+"<br>"+
-        "<b>Date:</b> "+new Date(d.date).toLocaleDateString()+"<br>"+
-        "<b>Venue:</b> "+d.venue;
+  fetch(API_URL + "?cert=" + encodeURIComponent(cert))
+    .then((r) => r.json())
+    .then((d) => {
+      if (d.found) {
+        res.innerHTML =
+          "<b style='color:green'>CERTIFICATE VERIFIED ✅</b><br><br>" +
+          "<b>Name:</b> " + d.name + "<br>" +
+          "<b>Certificate #:</b> " + d.certificate + "<br>" +
+          "<b>Training:</b> " + d.training + "<br>" +
+          "<b>Date:</b> " + new Date(d.date).toLocaleDateString() + "<br>" +
+          "<b>Venue:</b> " + d.venue;
         document.getElementById("beep").play();
-        if(navigator.vibrate) navigator.vibrate([200,100,200]);
-      }else{
-        res.innerHTML="<b style='color:red'>Certificate not found ❌</b>";
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      } else {
+        res.innerHTML = "<b style='color:red'>Certificate not found ❌</b>";
       }
     })
-    .catch(()=>{res.innerHTML="<b style='color:red'>Error connecting to server</b>";});
+    .catch(() => {
+      res.innerHTML = "<b style='color:red'>Error connecting to server</b>";
+    });
 }
 
 // QR Scanner
-let qr=null;
+let qr = null;
 
-document.getElementById("openScannerBtn").onclick=async ()=>{
-  const reader=document.getElementById("qr-reader");
-  if(qr){
+document.getElementById("openScannerBtn").onclick = async () => {
+  const reader = document.getElementById("qr-reader");
+  if (qr) {
     await qr.stop().catch(console.error);
     qr.clear();
-    qr=null;
-    reader.style.display="none";
+    qr = null;
+    reader.style.display = "none";
     return;
   }
-  reader.style.display="block";
-  qr=new Html5Qrcode("qr-reader");
-  try{
+  reader.style.display = "block";
+
+  qr = new Html5Qrcode("qr-reader");
+  try {
     await qr.start(
-      {facingMode:"environment"},
-      {fps:10, qrbox:250},
-      decodedText=>{
-        document.getElementById("certInput").value=decodedText;
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      (decodedText) => {
+        document.getElementById("certInput").value = decodedText;
         verifyCert(decodedText);
-        qr.stop().then(()=>qr.clear()).catch(console.error);
-        qr=null;
-        reader.style.display="none";
+        qr.stop().then(() => qr.clear()).catch(console.error);
+        qr = null;
+        document.getElementById("qr-reader").style.display = "none";
       }
     );
-  }catch(err){
-    console.error("Scanner start failed:",err);
-    document.getElementById("result").innerHTML="<b style='color:red'>Unable to open camera</b>";
+  } catch (err) {
+    console.error("Scanner start failed:", err);
+    document.getElementById("result").innerHTML = "<b style='color:red'>Unable to open camera</b>";
   }
 };
 
-// QR Upload
-const qrFileInput=document.getElementById("qrFileInput");
-document.getElementById("uploadQRBtn").onclick=()=> qrFileInput.click();
+// QR Upload with jsQR
+const qrFileInput = document.getElementById("qrFileInput");
+document.getElementById("uploadQRBtn").onclick = () => qrFileInput.click();
 
-qrFileInput.onchange=async (event)=>{
-  const file=event.target.files[0];
-  if(!file) return;
-  try{
-    const html5QrcodeImg=new Html5Qrcode("qr-reader");
-    const result=await html5QrcodeImg.scanFile(file,true);
-    document.getElementById("certInput").value=result;
-    verifyCert(result);
-  }catch(err){
-    console.error("QR upload failed:",err);
-    document.getElementById("result").innerHTML="<b style='color:red'>Unable to read QR code</b>";
-  }
+qrFileInput.onchange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const imageDataUrl = reader.result;
+    const image = new Image();
+    image.src = imageDataUrl;
+
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      if (code) {
+        document.getElementById("certInput").value = code.data;
+        verifyCert(code.data);
+      } else {
+        document.getElementById("result").innerHTML = "<b style='color:red'>Unable to detect QR code in the image</b>";
+      }
+    };
+  };
+  reader.readAsDataURL(file);
 };
 </script>
 </body>
