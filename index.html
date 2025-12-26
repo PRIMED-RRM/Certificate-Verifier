@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>QR Code Scanner Test</title>
-<!-- html5-qrcode library -->
+<title>PRIMED QR Code Scanner</title>
+<!-- Correct CDN for html5-qrcode -->
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
 <!-- jsQR library -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
@@ -80,16 +80,20 @@ let html5QrCode = null;
 // Start camera scan
 document.getElementById('startScan').onclick = async () => {
   qrReaderDiv.style.display = 'block';
+
   if (html5QrCode) {
+    // If already started, stop first
     await html5QrCode.stop().then(() => html5QrCode.clear()).catch(console.error);
   }
+
   html5QrCode = new Html5Qrcode("qr-reader");
+
   try {
     await html5QrCode.start(
       { facingMode: "environment" },
       { fps: 10, qrbox: 250 },
       (decodedText) => {
-        // Stop scanning after success
+        // Stop the scanner
         html5QrCode.stop().then(() => {
           html5QrCode.clear();
           qrReaderDiv.style.display = 'none';
@@ -99,7 +103,7 @@ document.getElementById('startScan').onclick = async () => {
       }
     );
   } catch (err) {
-    console.error("Camera start error:", err);
+    console.error("Error starting QR scanner:", err);
     resultDiv.innerHTML = "<b style='color:red'>Unable to access camera. Please check permissions.</b>";
   }
 };
@@ -112,6 +116,7 @@ document.getElementById('uploadBtn').onclick = () => {
 document.getElementById('fileInput').onchange = () => {
   const file = document.getElementById('fileInput').files[0];
   if (!file) return;
+
   const reader = new FileReader();
   reader.onload = () => {
     const img = new Image();
