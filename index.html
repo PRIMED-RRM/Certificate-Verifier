@@ -49,7 +49,7 @@ h2{
   color:#555;
   margin-bottom:14px;
 }
-input,select{
+input{
   width:90%;
   padding:10px;
   margin-bottom:10px;
@@ -108,7 +108,8 @@ footer{
 <h2>CERTIFICATE VERIFIER</h2>
 
 <div class="description">
-Verify training certificates issued by <b>PRIMED Risk Reduction Management Training Services</b> the official training arm of </b>ACER - Fire Rescue & Communication, Inc.</b>
+Verify training certificates issued by <b>PRIMED Risk Reduction Management Training Services</b>,
+the training arm of <b>ACER – Fire Rescue & Communication, Inc.</b>
 </div>
 
 <input type="text" id="certInput" placeholder="Enter Certificate Number">
@@ -121,48 +122,60 @@ Verify training certificates issued by <b>PRIMED Risk Reduction Management Train
 </div>
 
 <div id="scanner">
-  <video id="video" autoplay></video>
+  <video id="video" autoplay playsinline></video>
   <canvas id="canvas" hidden></canvas>
 </div>
 
 <div id="result"></div>
 
 <div class="disclaimer">
-This verification is based on PRIMED records only and is not a government or international accreditation/certification.
+This verification is based solely on PRIMED records and is not a government certification nor an international accreditation.
 </div>
 
-<footer>© 2025 PRIMED RRMTS | All rights reserved. </footer>
+<footer>© 2025 PRIMED RRMTS | All rights reserved.</footer>
 
 </div>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
+/* DATABASE LINK */
+const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
 
+/* VERIFY */
 function verify(cert){
   const c = cert || document.getElementById("certInput").value.trim();
   const res = document.getElementById("result");
-  if(!c){res.innerHTML="❌ Enter Certificate Number";return;}
 
-  res.innerHTML="Verifying...";
-  fetch(API_URL+"?cert="+encodeURIComponent(c))
-  .then(r=>r.json())
-  .then(d=>{
-    if(d.found){
-      res.innerHTML=<b>CERTIFICATE VERIFIED ✅</b><br><br>
-      <b>Name:</b> ${d.name}<br>
-      <b>Certificate Number:</b> ${d.certificate}<br>
-      <b>Type of Training:</b> ${d.training}<br>
-      <b>Training Date:</b> ${new Date(d.date).toLocaleDateString()}<br>
-      <b>Training Venue:</b> ${d.venue}`;
-    }else{
-      res.innerHTML="❌ Certificate not found";
-    }
-  })
-  .catch(()=>res.innerHTML="❌ Server error");
+  if(!c){
+    res.innerHTML="❌ Please enter certificate number";
+    return;
+  }
+
+  res.innerHTML="Verifying…";
+
+  fetch(API_URL + "?cert=" + encodeURIComponent(c))
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.found){
+        res.innerHTML = `
+          <b style="color:green">CERTIFICATE VERIFIED ✅</b><br><br>
+          <b>Name:</b> ${d.name}<br>
+          <b>Certificate #:</b> ${d.certificate}<br>
+          <b>Training:</b> ${d.training}<br>
+          <b>Date:</b> ${new Date(d.date).toLocaleDateString()}<br>
+          <b>Venue:</b> ${d.venue}
+        `;
+      }else{
+        res.innerHTML="❌ Certificate not found";
+      }
+    })
+    .catch(()=>{
+      res.innerHTML="❌ Server connection error";
+    });
 }
 
-/* CAMERA SCANNER */
-let stream=null, scanning=false;
+/* CAMERA QR SCANNER */
+let stream=null;
+let scanning=false;
 
 function toggleScanner(){
   const scanner=document.getElementById("scanner");
@@ -176,18 +189,19 @@ function toggleScanner(){
   }
 
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
-  .then(s=>{
-    stream=s;
-    video.srcObject=s;
-    scanner.style.display="block";
-    scanning=true;
-    scanLoop();
-  })
-  .catch(()=>alert("Camera access denied"));
+    .then(s=>{
+      stream=s;
+      video.srcObject=s;
+      scanner.style.display="block";
+      scanning=true;
+      scanLoop();
+    })
+    .catch(()=>alert("Camera access denied"));
 }
 
 function scanLoop(){
   if(!scanning) return;
+
   const video=document.getElementById("video");
   const canvas=document.getElementById("canvas");
   const ctx=canvas.getContext("2d");
@@ -197,21 +211,26 @@ function scanLoop(){
   ctx.drawImage(video,0,0);
 
   const img=ctx.getImageData(0,0,canvas.width,canvas.height);
-  const code=jsQR(img.data,canvas.width,canvas.height);
+  const qr=jsQR(img.data,canvas.width,canvas.height);
 
-  if(code){
-    document.getElementById("certInput").value=code.data;
+  if(qr){
+    document.getElementById("certInput").value=qr.data;
     toggleScanner();
-    verify(code.data);
+    verify(qr.data);
     return;
   }
   requestAnimationFrame(scanLoop);
 }
 
 /* UPLOAD QR */
+function uploadQR(){
+  document.getElementById("qrFile").click();
+}
+
 document.getElementById("qrFile").onchange=e=>{
   const file=e.target.files[0];
   if(!file) return;
+
   const img=new Image();
   img.onload=()=>{
     const c=document.createElement("canvas");
@@ -224,14 +243,12 @@ document.getElementById("qrFile").onchange=e=>{
     if(qr){
       document.getElementById("certInput").value=qr.data;
       verify(qr.data);
-    }else alert("QR not readable");
+    }else{
+      alert("QR code not readable");
+    }
   };
   img.src=URL.createObjectURL(file);
 };
-
-function uploadQR(){
-  document.getElementById("qrFile").click();
-}
 </script>
 
 </body>
