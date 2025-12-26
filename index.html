@@ -199,8 +199,8 @@ function verify(cert){
           return;
         }
         beep.play();
-       const dateObj = d.date ? new Date(d.date) : null;
-const dateOnly = dateObj ? dateObj.getDate() + "/" + (dateObj.getMonth()+1) + "/" + dateObj.getFullYear() : "";
+   const dateObj = d.date ? new Date(d.date) : null;
+const dateOnly = dateObj ? (dateObj.getMonth()+1) + "/" + dateObj.getDate() + "/" + dateObj.getFullYear() : "";
 
         const certLink = `${window.location.origin}${window.location.pathname}?cert=${encodeURIComponent(d.certificate)}`;
         res.innerHTML=`
