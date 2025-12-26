@@ -188,7 +188,7 @@ function verify(cert){
   const res=document.getElementById("result");
 
   if(!c){ res.innerHTML=" PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
-  res.innerHTML="Verifying…";
+  res.innerHTML="Verifying, Please Wait…";
 
   fetch(API_URL+"?cert="+encodeURIComponent(c))
     .then(r=>r.json())
@@ -199,7 +199,9 @@ function verify(cert){
           return;
         }
         beep.play();
-        const dateOnly = d.date ? d.date.split("T")[0] : "";
+       const dateObj = d.date ? new Date(d.date) : null;
+const dateOnly = dateObj ? dateObj.getDate() + "/" + (dateObj.getMonth()+1) + "/" + dateObj.getFullYear() : "";
+
         const certLink = `${window.location.origin}${window.location.pathname}?cert=${encodeURIComponent(d.certificate)}`;
         res.innerHTML=`
           <b style="color:green">CERTIFICATE VERIFIED ✅</b><br><br>
