@@ -2,89 +2,110 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PRIMED CERTIFICATE VERIFIER</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRIMED Risk Reduction Management Training Services Certificate Verifier</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+
 <style>
-body {
-  font-family: Roboto, sans-serif;
-  background: linear-gradient(180deg,#eef3f9,#f9fbfd);
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
+body{
+  font-family:Roboto,sans-serif;
+  background:linear-gradient(180deg,#eef3f9,#f9fbfd);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
 }
-.container {
-  background: #fff;
-  padding: 20px;
-  border-radius: 14px;
-  width: 95%;
-  max-width: 480px;
-  box-shadow: 0 8px 28px rgba(0,0,0,.15);
-  text-align: center;
-  margin-top: 20px;
+.container{
+  background:#fff;
+  padding:26px;
+  border-radius:14px;
+  width:95%;
+  max-width:480px;
+  box-shadow:0 8px 28px rgba(0,0,0,.15);
+  text-align:center;
 }
-.logos {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
+.logos{
+  display:flex;
+  justify-content:center;
+  gap:14px;
 }
-.logos img { width: 75px; }
-h2 {
-  margin: 10px 0 4px;
-  color: #0d6efd;
-  font-size: 20px;
-  font-weight: 700;
-  text-transform: uppercase;
+.logos img{width:75px}
+
+h2{
+  margin:10px 0 4px;
+  color:#0d6efd;
+  font-size:20px;
+  font-weight:700;
+  text-transform:uppercase;
 }
-.description {
-  font-size: 12px;
-  color: #555;
-  margin-bottom: 14px;
+
+.description{
+  font-size:12px;
+  color:#555;
+  margin-bottom:14px;
 }
-select, input {
-  width: 90%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+
+select,input{
+  width:90%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
-button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  margin: 4px;
-  cursor: pointer;
-  font-size: 14px;
+
+button{
+  padding:10px 16px;
+  border:none;
+  border-radius:8px;
+  font-weight:500;
+  margin:4px;
+  cursor:pointer;
 }
-.primary { background: #0d6efd; color: #fff; }
-.scan { background: #198754; color: #fff; }
-#scanner { display: none; margin-top: 12px; }
-video { width: 100%; border-radius: 12px; }
-#result {
-  margin-top: 12px;
-  text-align: left;
-  font-size: 14px;
-  background: #f3f6fb;
-  padding: 12px;
-  border-radius: 10px;
-  word-break: break-word;
+
+.primary{background:#0d6efd;color:#fff}
+.scan{background:#198754;color:#fff}
+.browser{background:#6c757d;color:#fff}
+
+#scanner{
+  display:none;
+  margin-top:12px;
 }
-.disclaimer {
-  font-size: 12px;
-  margin-top: 14px;
-  color: #666;
+video{
+  width:100%;
+  border-radius:12px;
 }
-footer {
-  font-size: 12px;
-  margin-top: 6px;
-  color: #555;
+
+#result{
+  margin-top:12px;
+  text-align:left;
+  font-size:14px;
+  background:#f3f6fb;
+  padding:12px;
+  border-radius:10px;
+}
+
+.notice{
+  margin-top:10px;
+  padding:10px;
+  font-size:12px;
+  background:#fff3cd;
+  border:1px solid #ffeeba;
+  border-radius:8px;
+  color:#856404;
+}
+
+.disclaimer{
+  font-size:12px;
+  margin-top:14px;
+  color:#666;
+}
+
+footer{
+  font-size:12px;
+  margin-top:6px;
+  color:#555;
 }
 </style>
 </head>
@@ -99,7 +120,8 @@ footer {
 <h2>CERTIFICATE VERIFIER</h2>
 
 <div class="description">
-Quickly verify PRIMED-issued training certificates.
+Verify certificates issued by <b>PRIMED Risk Reduction Management Training Services</b>,
+the training arm of <b>ACER – Fire Rescue & Communication, Inc.</b>
 </div>
 
 <select id="trainingFilter">
@@ -114,10 +136,18 @@ Quickly verify PRIMED-issued training certificates.
   <option value="Earthquake Preparedness Seminar">Earthquake Preparedness Seminar</option>
 </select>
 
-<input type="text" id="certInput" placeholder="Enter Certificate Number" autofocus>
+<input type="text" id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
+
 <div>
   <button class="primary" onclick="verify()">Verify</button>
   <button class="scan" onclick="toggleScanner()">Scan QR</button>
+</div>
+
+<div id="browserNotice" class="notice" style="display:none">
+  ⚠️ Camera scanning is blocked inside Messenger / Facebook.<br>
+  Please open this page in your browser.
+  <br><br>
+  <button class="browser" onclick="openInBrowser()">Open in Browser</button>
 </div>
 
 <div id="scanner">
@@ -128,88 +158,117 @@ Quickly verify PRIMED-issued training certificates.
 <div id="result"></div>
 
 <div class="disclaimer">
-This verification is based solely on PRIMED records and is not a government certification or international accreditation.
+This verification is based solely on PRIMED records and is not a government certification nor international accreditation/certification.
 </div>
 
 <footer>© 2025 PRIMED RRMTS | All rights reserved.</footer>
+
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyQMfyAefTXIP9dV-0L6lEkD0uXYNEtxHfNB8FEKBuZTfgqFyCMQZ5KzQdGFgzYa1V1xA/exec";
-const beep = document.getElementById("beep");
+const API_URL="https://script.google.com/macros/s/AKfycbwjH17flRqgdL5UfTx6EXCBDbdselynyt3aUmLfYVJl1aobBKtQbmdFoP7a6HlVMtKOtA/exec";
+const beep=document.getElementById("beep");
 
 /* ENTER KEY */
-const certInput = document.getElementById("certInput");
-certInput.addEventListener("keydown", e => { if(e.key==="Enter") verify(); });
+document.getElementById("certInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter") verify();
+});
+
+/* IN-APP BROWSER DETECTION */
+const ua=navigator.userAgent.toLowerCase();
+const isInApp = ua.includes("fbav") || ua.includes("fban") || ua.includes("instagram");
+function openInBrowser(){ window.open(window.location.href,"_blank"); }
 
 /* VERIFY FUNCTION */
 function verify(cert){
-  const c = cert || certInput.value.trim();
-  const filter = document.getElementById("trainingFilter").value;
-  const res = document.getElementById("result");
-  if(!c){ res.innerHTML = "PLEASE ENTER CERTIFICATE NUMBER"; return; }
-  res.innerHTML = "Verifying…";
+  const c=cert||document.getElementById("certInput").value.trim();
+  const filter=document.getElementById("trainingFilter").value;
+  const res=document.getElementById("result");
 
-  fetch(API_URL + "?cert=" + encodeURIComponent(c))
-    .then(r => r.json())
-    .then(d => {
+  if(!c){ res.innerHTML="❌ Enter certificate number"; return; }
+  res.innerHTML="Verifying…";
+
+  fetch(API_URL+"?cert="+encodeURIComponent(c))
+    .then(r=>r.json())
+    .then(d=>{
       if(d.found){
-        if(filter && d.training !== filter){
-          res.innerHTML = "TRAINING DOES NOT MATCH SELECTED FILTER ❌";
+        if(filter && d.training!==filter){
+          res.innerHTML="❌ Training does not match selected filter";
           return;
         }
         beep.play();
-        res.innerHTML = `
+        const dateOnly = d.date ? d.date.split("T")[0] : "";
+        const certLink = `${window.location.origin}${window.location.pathname}?cert=${encodeURIComponent(d.certificate)}`;
+        res.innerHTML=`
           <b style="color:green">CERTIFICATE VERIFIED ✅</b><br><br>
           <b>Name:</b> ${d.name}<br>
-          <b>Certificate Number:</b> ${d.certificate}<br>
-          <b>Type of Training:</b> ${d.training}<br>
-          <b>Training Date:</b> ${new Date(d.date).toLocaleDateString()}<br>
-          <b>Training Venue:</b> ${d.venue}
+          <b>Certificate #:</b> ${d.certificate}<br>
+          <b>Training:</b> ${d.training}<br>
+          <b>Date:</b> ${dateOnly}<br>
+          <b>Venue:</b> ${d.venue}<br><br>
+          <button onclick="copyLink('${certLink}')">Copy Certificate Link</button>
         `;
-        certInput.focus(); // auto-focus after verification
-      } else {
-        res.innerHTML = "CERTIFICATE NOT FOUND ❌";
-        certInput.focus();
+      }else{
+        res.innerHTML="❌ Certificate not found";
       }
     })
-    .catch(()=> { res.innerHTML="SERVER ERROR ❌"; certInput.focus(); });
+    .catch(()=>res.innerHTML="❌ Server error");
 }
 
-/* QR SCANNER */
-let stream = null, scanning = false;
+/* COPY LINK FUNCTION */
+function copyLink(url){
+  navigator.clipboard.writeText(url).then(()=>{
+    alert("Certificate link copied to clipboard!");
+  }).catch(()=>{
+    alert("Failed to copy link. Please copy manually: " + url);
+  });
+}
+
+/* QR SCANNER (non-html5qrcode) */
+let stream=null, scanning=false;
 function toggleScanner(){
-  const scanner = document.getElementById("scanner");
-  const video = document.getElementById("video");
-  if(scanning){ stream.getTracks().forEach(t=>t.stop()); scanner.style.display="none"; scanning=false; certInput.focus(); return; }
+  if(isInApp){ document.getElementById("browserNotice").style.display="block"; return; }
+
+  const scanner=document.getElementById("scanner");
+  const video=document.getElementById("video");
+
+  if(scanning){
+    stream.getTracks().forEach(t=>t.stop());
+    scanner.style.display="none";
+    scanning=false;
+    return;
+  }
 
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
     .then(s=>{
-      stream = s;
-      video.srcObject = s;
-      scanner.style.display = "block";
-      scanning = true;
-      video.onloadedmetadata = ()=> { video.play(); scanLoop(); }
+      stream=s;
+      video.srcObject=s;
+      scanner.style.display="block";
+      scanning=true;
+      video.onloadedmetadata=()=>{ video.play(); scanLoop(); };
     })
-    .catch(()=>alert("Camera access denied"));
+    .catch(()=>{ document.getElementById("result").innerHTML="❌ Camera access denied"; });
 }
 
 function scanLoop(){
   if(!scanning) return;
-  const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
+  const video=document.getElementById("video");
+  const canvas=document.getElementById("canvas");
+  const ctx=canvas.getContext("2d");
+
   const scale = 400 / Math.max(video.videoWidth, video.videoHeight);
   canvas.width = video.videoWidth * scale;
   canvas.height = video.videoHeight * scale;
+
   ctx.drawImage(video,0,0,canvas.width,canvas.height);
-  const img = ctx.getImageData(0,0,canvas.width,canvas.height);
-  const qr = jsQR(img.data, canvas.width, canvas.height);
+  const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const qr=jsQR(img.data, canvas.width, canvas.height);
+
   if(qr){
     beep.play();
-    certInput.value = qr.data;
+    document.getElementById("certInput").value=qr.data;
     toggleScanner();
     verify(qr.data);
     return;
