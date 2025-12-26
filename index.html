@@ -1,128 +1,122 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>PRIMED QR Code Scanner</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+!DOCTYPE html
+html lang=en
+head
+meta charset=UTF-8 
+meta name=viewport content=width=device-width, initial-scale=1.0 
+titleQR Code Scanner Testtitle
+!-- html5-qrcode library --
+script src=httpscdn.jsdelivr.netnpmhtml5-qrcode@2.3.10html5-qrcode.min.jsscript
+!-- jsQR library --
+script src=httpscdn.jsdelivr.netnpmjsqrdistjsQR.jsscript
+style
+  body {
+    font-family Arial, sans-serif;
+    background #eef3f9;
+    displayflex;
+    justify-contentcenter;
+    align-itemscenter;
+    height100vh;
+    margin0;
+  }
+  .container {
+    background#fff;
+    padding20px;
+    border-radius12px;
+    max-width500px;
+    width90%;
+    text-aligncenter;
+  }
+  #qr-reader {
+    display none;
+    margin12px auto;
+    width90%;
+    max-width300px;
+    border-radius12px;
+    overflowhidden;
+  }
+  #result {
+    margin-top12px;
+    padding10px;
+    background#f3f6fb;
+    border-radius10px;
+    border1px solid #dce3ef;
+    min-height50px;
+  }
+  button {
+    margin8px;
+    padding10px 14px;
+    bordernone;
+    border-radius8px;
+    cursorpointer;
+    font-weight500;
+  }
+  .btn-scan {
+    backgroundlinear-gradient(90deg,#198754,#0f5132);
+    color#fff;
+  }
+  .btn-upload {
+    backgroundlinear-gradient(90deg,#fd7e14,#d9480f);
+    color#fff;
+  }
+style
+head
+body
+div class=container
+h2QR Code Scanner Testh2
+button id=startScan class=btn-scanStart Camera Scanbutton
+button id=uploadBtn class=btn-uploadUpload QR Imagebutton
+input type=file id=fileInput accept=image style=displaynone 
 
-  <!-- html5-qrcode library -->
-  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
-  <!-- jsQR library -->
-  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+div id=qr-readerdiv
+div id=resultdiv
+div
 
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(180deg,#eef3f9,#f9fbfd);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      margin:0;
-    }
-    .container {
-      background:#fff;
-      padding:20px;
-      border-radius:14px;
-      max-width:500px;
-      width:90%;
-      text-align:center;
-    }
-    #qr-reader {
-      width: 90%;
-      max-width: 300px;
-      margin: 12px auto;
-      display: none;
-      border-radius:12px;
-      overflow:hidden;
-    }
-    #result {
-      margin-top: 12px;
-      text-align: left;
-      min-height: 50px;
-      font-size:14px;
-      background:#f3f6fb;
-      padding:10px;
-      border-radius:10px;
-      border:1px solid #dce3ef;
-    }
-    button {
-      margin: 8px;
-      padding: 10px 14px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-weight:500;
-    }
-    .btn-scan {
-      background:linear-gradient(90deg,#198754,#0f5132);
-      color:#fff;
-    }
-    .btn-upload {
-      background:linear-gradient(90deg,#fd7e14,#d9480f);
-      color:#fff;
-    }
-  </style>
-</head>
-<body>
-<div class="container">
-  <h2>PRIMED QR Code Scanner</h2>
-  <button id="startScan" class="btn-scan">Start Camera Scan</button>
-  <button id="uploadBtn" class="btn-upload">Upload QR Image</button>
-  <input type="file" id="fileInput" accept="image/*" style="display:none" />
-
-  <div id="qr-reader"></div>
-  <div id="result"></div>
-</div>
-
-<script>
+script
+const qrReaderDiv = document.getElementById('qr-reader');
 const resultDiv = document.getElementById('result');
-const qrContainer = document.getElementById('qr-reader');
 
 let html5QrCode = null;
 
-// Start camera scan
-document.getElementById('startScan').onclick = async () => {
-  qrContainer.style.display = 'block';
+ Start camera scan
+document.getElementById('startScan').onclick = async () = {
+  qrReaderDiv.style.display = 'block';
   if (html5QrCode) {
-    await html5QrCode.stop().catch(console.error);
-    html5QrCode.clear();
+    await html5QrCode.stop().then(() = html5QrCode.clear()).catch(console.error);
   }
-  html5QrCode = new Html5Qrcode("qr-reader");
+  html5QrCode = new Html5Qrcode(qr-reader);
   try {
     await html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      (decodedText) => {
-        // stop scanning after success
-        html5QrCode.stop().then(() => {
+      { facingMode environment },
+      { fps 10, qrbox 250 },
+      (decodedText) = {
+         Stop scanning after success
+        html5QrCode.stop().then(() = {
           html5QrCode.clear();
-          qrContainer.style.display = 'none';
+          qrReaderDiv.style.display = 'none';
         }).catch(console.error);
-        document.getElementById('result').innerHTML = "<b style='color:green'>Decoded QR: </b>" + decodedText;
-        alert("Decoded QR: " + decodedText);
+        resultDiv.innerHTML = b style='colorgreen'Decoded QR b + decodedText;
+        alert(Decoded QR  + decodedText);
       }
     );
   } catch (err) {
-    console.error(err);
-    resultDiv.innerHTML = "<b style='color:red'>Unable to access camera. Check permissions.</b>";
+    console.error(Camera start error, err);
+    resultDiv.innerHTML = b style='colorred'Unable to access camera. Please check permissions.b;
   }
 };
 
-// Upload image and decode with jsQR
-document.getElementById('uploadBtn').onclick = () => {
+ Upload image and decode with jsQR
+document.getElementById('uploadBtn').onclick = () = {
   document.getElementById('fileInput').click();
 };
 
-document.getElementById('fileInput').onchange = () => {
+document.getElementById('fileInput').onchange = () = {
   const file = document.getElementById('fileInput').files[0];
   if (!file) return;
-
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = () = {
     const img = new Image();
     img.src = reader.result;
-    img.onload = () => {
+    img.onload = () = {
       const canvas = document.createElement('canvas');
       canvas.width = img.width;
       canvas.height = img.height;
@@ -131,15 +125,15 @@ document.getElementById('fileInput').onchange = () => {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const code = jsQR(imageData.data, imageData.width, imageData.height);
       if (code) {
-        document.getElementById('result').innerHTML = "<b style='color:blue'>QR Code Data:</b> " + code.data;
-        alert("Decoded QR: " + code.data);
+        resultDiv.innerHTML = b style='colorblue'QR Code Datab  + code.data;
+        alert(Decoded QR  + code.data);
       } else {
-        document.getElementById('result').innerHTML = "<b style='color:red'>Unable to detect QR code in the image</b>";
+        resultDiv.innerHTML = b style='colorred'Unable to detect QR code in the imageb;
       }
     };
   };
   reader.readAsDataURL(file);
 };
-</script>
-</body>
-</html>
+script
+body
+html
