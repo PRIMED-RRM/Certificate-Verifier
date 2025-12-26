@@ -13,7 +13,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <!-- ✅ Stable, non-minified, pinned version -->
+  <!-- html5-qrcode library -->
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.10/html5-qrcode.js"></script>
 
   <style>
@@ -47,11 +47,10 @@
       font-size:19px;
       font-weight:700;
       margin:6px 0 4px;
-      letter-spacing:0;
       text-transform:uppercase;
     }
     .description{
-      font-size:11px;
+      font-size:12px;
       color:#555;
       line-height:1.45;
       margin-bottom:14px;
@@ -81,9 +80,9 @@
       background:linear-gradient(90deg,#198754,#0f5132);
       color:#fff;
     }
-    .btn-secondary{
-      background:#eef2f7;
-      color:#333;
+    .btn-upload{
+      background:linear-gradient(90deg,#fd7e14,#d9480f);
+      color:#fff;
     }
     #qr-reader{
       width:90%;
@@ -92,10 +91,6 @@
       display:none;
       border-radius:12px;
       overflow:hidden;
-    }
-    #scanner-controls{
-      display:none;
-      margin-bottom:10px;
     }
     #result{
       margin-top:12px;
@@ -123,7 +118,6 @@
 </head>
 
 <body>
-
 <div class="container">
 
   <div class="logos">
@@ -132,7 +126,6 @@
   </div>
 
   <h2>CERTIFICATE VERIFIER</h2>
-  <div>
 
   <div class="description">
     This official verification portal confirms the authenticity of training certificates
@@ -157,13 +150,11 @@
   <div>
     <button class="btn btn-primary" onclick="verifyCert()">Submit</button>
     <button class="btn btn-scan" id="openScannerBtn">Scan QR Code</button>
+    <button class="btn btn-upload" id="uploadQRBtn">Upload QR Code</button>
+    <input type="file" id="qrFileInput" accept="image/*" style="display:none">
   </div>
 
   <div id="qr-reader"></div>
-  <div id="scanner-controls">
-    <button class="btn btn-secondary" id="flashBtn">Flashlight</button>
-  </div>
-
   <div id="result"></div>
 
   <div class="disclaimer">
@@ -175,18 +166,17 @@
   <footer>
     © 2025 PRIMED RRMTS | All rights reserved.
   </footer>
-
 </div>
 
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
 
 // Verify certificate
-function verifyCert(v){
-  const cert=v||document.getElementById("certInput").value.trim();
-  const res=document.getElementById("result");
+function verifyCert(certInput){
+  const cert = certInput || document.getElementById("certInput").value.trim();
+  const res = document.getElementById("result");
   if(!cert){
     res.innerHTML="<b style='color:red'>Please enter a certificate number.</b>";
     return;
@@ -204,105 +194,64 @@ function verifyCert(v){
         "<b>Training:</b> "+d.training+"<br>"+
         "<b>Date:</b> "+new Date(d.date).toLocaleDateString()+"<br>"+
         "<b>Venue:</b> "+d.venue;
-
         document.getElementById("beep").play();
         if(navigator.vibrate) navigator.vibrate([200,100,200]);
-      } else {
+      }else{
         res.innerHTML="<b style='color:red'>Certificate not found ❌</b>";
       }
-    });
-}
-
-const API_URL="https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
-
-// Verify certificate
-function verifyCert(v){
-  const cert=v||document.getElementById("certInput").value.trim();
-  const res=document.getElementById("result");
-  if(!cert){
-    res.innerHTML="<b style='color:red'>Please enter a certificate number.</b>";
-    return;
-  }
-
-  res.innerHTML="Verifying…";
-
-  fetch(API_URL+"?cert="+encodeURIComponent(cert))
-    .then(r=>r.json())
-    .then(d=>{
-      if(d.found){
-        res.innerHTML="<b style='color:green'>CERTIFICATE VERIFIED ✅</b><br><br>"+
-        "<b>Name:</b> "+d.name+"<br>"+
-        "<b>Certificate #:</b> "+d.certificate+"<br>"+
-        "<b>Training:</b> "+d.training+"<br>"+
-        "<b>Date:</b> "+new Date(d.date).toLocaleDateString()+"<br>"+
-        "<b>Venue:</b> "+d.venue;
-
-        document.getElementById("beep").play();
-        if(navigator.vibrate) navigator.vibrate([200,100,200]);
-      } else {
-        res.innerHTML="<b style='color:red'>Certificate not found ❌</b>";
-      }
-    });
+    })
+    .catch(()=>{res.innerHTML="<b style='color:red'>Error connecting to server</b>";});
 }
 
 // QR Scanner
-let qr=null, videoTrack=null, torch=false;
+let qr=null;
 
-// Start scanner automatically on page load
-window.addEventListener('DOMContentLoaded', async ()=>{
+document.getElementById("openScannerBtn").onclick=async ()=>{
   const reader=document.getElementById("qr-reader");
-  const ctrl=document.getElementById("scanner-controls");
-
+  if(qr){
+    await qr.stop().catch(console.error);
+    qr.clear();
+    qr=null;
+    reader.style.display="none";
+    return;
+  }
   reader.style.display="block";
-  ctrl.style.display="block";
-
   qr=new Html5Qrcode("qr-reader");
-
   try{
     await qr.start(
-      {facingMode:"environment"}, // back camera
+      {facingMode:"environment"},
       {fps:10, qrbox:250},
       decodedText=>{
         document.getElementById("certInput").value=decodedText;
         verifyCert(decodedText);
-
-        // Stop scanner after scan
         qr.stop().then(()=>qr.clear()).catch(console.error);
         qr=null;
-        videoTrack=null;
         reader.style.display="none";
-        ctrl.style.display="none";
       }
     );
-
-    const video=document.querySelector("#qr-reader video");
-    if(video && video.srcObject && video.srcObject.getVideoTracks().length>0){
-      videoTrack=video.srcObject.getVideoTracks()[0];
-    }
-  } catch(err){
+  }catch(err){
     console.error("Scanner start failed:",err);
     document.getElementById("result").innerHTML="<b style='color:red'>Unable to open camera</b>";
   }
-});
-
-// Flashlight toggle
-document.getElementById("flashBtn").onclick=()=>{
-  if(!videoTrack){ alert("Flashlight not supported"); return; }
-  const cap=videoTrack.getCapabilities();
-  if(!cap.torch){ alert("Flashlight not supported"); return; }
-  torch=!torch;
-  videoTrack.applyConstraints({advanced:[{torch:torch}]}).catch(console.error);
 };
 
-// Flashlight toggle
-document.getElementById("flashBtn").onclick=()=>{
-  if(!videoTrack){ alert("Flashlight not supported"); return; }
-  const cap=videoTrack.getCapabilities();
-  if(!cap.torch){ alert("Flashlight not supported"); return; }
-  torch=!torch;
-  videoTrack.applyConstraints({advanced:[{torch:torch}]}).catch(console.error);
+// QR Upload
+const qrFileInput=document.getElementById("qrFileInput");
+document.getElementById("uploadQRBtn").onclick=()=> qrFileInput.click();
+
+qrFileInput.onchange=async (event)=>{
+  const file=event.target.files[0];
+  if(!file) return;
+  try{
+    const html5QrcodeImg=new Html5Qrcode("qr-reader");
+    const result=await html5QrcodeImg.scanFile(file,true);
+    document.getElementById("certInput").value=result;
+    verifyCert(result);
+  }catch(err){
+    console.error("QR upload failed:",err);
+    document.getElementById("result").innerHTML="<b style='color:red'>Unable to read QR code</b>";
+  }
 };
 </script>
-
 </body>
 </html>
