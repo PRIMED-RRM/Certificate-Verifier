@@ -6,130 +6,91 @@
 <title>PRIMED Certificate Verifier</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
 
 <style>
-:root {
-  --bg-color: #e3f2fd;
-  --card-bg: #ffffff;
-  --text-color: #333;
-  --primary-color: #0d6efd;
-  --secondary-color: #084298;
+:root{
+  --bg:#e3f2fd;
+  --card:#fff;
+  --primary:#0d6efd;
 }
-[data-theme="dark"] {
-  --bg-color: #121212;
-  --card-bg: #1e1e1e;
-  --text-color: #eee;
+body{
+  font-family:Roboto,sans-serif;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
 }
+.container{
+  width:95%;
+  max-width:500px;
+  background:var(--card);
+  padding:20px;
+  margin-top:20px;
+  border-radius:18px;
+  box-shadow:0 12px 35px rgba(0,0,0,.15);
+  text-align:center;
+}
+.logo-wrap{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  margin-bottom:10px;
+}
+.logo-wrap img{height:60px}
+.org-title{font-size:12px;letter-spacing:1px;color:#555}
+.main-title{font-size:20px;font-weight:700;color:var(--primary);margin:10px 0}
+select,input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-bottom:10px;
+}
+.btn{
+  padding:10px 18px;
+  border-radius:10px;
+  border:none;
+  margin:5px;
+  cursor:pointer;
+}
+.btn-primary{
+  background:linear-gradient(90deg,#0d6efd,#084298);
+  color:#fff;
+}
+.btn-secondary{background:#f1f1f1}
 
-* { box-sizing: border-box; margin:0; padding:0; }
-body {
-  font-family: 'Roboto', sans-serif;
-  background: var(--bg-color);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+#qr-reader{
+  width:100%;
+  max-width:320px;
+  margin:15px auto 5px;
+  display:none;
 }
+#scanner-controls{
+  display:none;
+  margin-bottom:10px;
+}
+#result{
+  background:#f8f9fa;
+  border-radius:12px;
+  padding:12px;
+  text-align:left;
+  margin-top:10px;
+}
+.valid{color:green;font-weight:600}
+.invalid{color:red;font-weight:600}
 
-.container {
-  width: 95%;
-  max-width: 500px;
-  background: var(--card-bg);
-  padding: 20px;
-  margin-top: 20px;
-  border-radius: 18px;
-  box-shadow: 0 12px 35px rgba(0,0,0,.15);
-  text-align: center;
-}
-
-.logo-wrap {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 10px;
-}
-.logo-wrap img {
-  height: 60px;
-  object-fit: contain;
-}
-
-.org-title {
-  font-size: 12px;
-  letter-spacing: 1px;
-  margin-bottom: 5px;
-  color: #555;
-}
-.main-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin-bottom: 15px;
-}
-
-.description {
-  font-size: 13px;
-  margin-bottom: 15px;
-}
-
-select, input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-.btn {
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  margin: 5px;
-}
-.btn-primary {
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  color: #fff;
-}
-.btn-secondary {
-  background: #f1f1f1;
-}
-
-#qr-reader {
-  width: 100%;
-  max-width: 320px;
-  margin: 15px auto 5px;
-  display: none;
-}
-
-#scanner-controls {
-  display: none;
-  margin-bottom: 10px;
-}
-
-#result {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 12px;
-  font-size: 14px;
-  text-align: left;
-  margin-top: 10px;
-}
-
-.valid { color: green; font-weight: 600; }
-.invalid { color: red; font-weight: 600; }
-
-footer {
-  font-size: 12px;
-  color: #555;
-  margin: 15px 0;
-  text-align: center;
+footer{
+  margin:15px 0;
+  font-size:12px;
+  color:#555;
+  text-align:center;
 }
 </style>
 </head>
 
-<body data-theme="light">
+<body>
 
 <div class="container">
 
@@ -140,19 +101,6 @@ footer {
 
   <div class="org-title">PRIMED RISK REDUCTION MANAGEMENT TRAINING SERVICES</div>
   <div class="main-title">CERTIFICATE VERIFIER</div>
-
-  <p class="description">
-    Official verification portal of PRIMED – Training Arm of ACER Fire Rescue & Communication Inc.
-  </p>
-
-  <select id="trainingFilter">
-    <option value="">All Trainings</option>
-    <option>STOP THE BLEED</option>
-    <option>Basic Life Support</option>
-    <option>Standard First Aid</option>
-    <option>Basic First Aid</option>
-    <option>Hands-Only CPR</option>
-  </select>
 
   <input id="certInput" placeholder="Enter Certificate Number">
 
@@ -172,90 +120,91 @@ footer {
 </div>
 
 <footer>
-© 2025 PRIMED RRMTS<br>
-acerfrci@gmail.com | +63 946 247 6586
+© 2025 PRIMED RRMTS | All rights reserved
 </footer>
 
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXtv0ybC7vgukImCW5qK76YZV8dT2CStaOUc5XvX_0flhEw/exec";
 
-let scanner = null;
-let videoTrack = null;
-let torchOn = false;
+let qrScanner=null;
+let videoTrack=null;
+let torch=false;
 
-function verifyCert(value){
-  const cert = value || certInput.value.trim();
-  if(!cert){
-    result.innerHTML = "<span class='invalid'>Enter certificate number</span>";
-    return;
-  }
+function verifyCert(val){
+  const cert=val||document.getElementById("certInput").value.trim();
+  const res=document.getElementById("result");
+  if(!cert){res.innerHTML="<span class='invalid'>Enter certificate number</span>";return;}
 
-  result.innerHTML = "Checking...";
+  res.innerHTML="Checking...";
   fetch(`${API_URL}?cert=${encodeURIComponent(cert)}`)
   .then(r=>r.json())
   .then(d=>{
     if(d.found){
-      result.innerHTML = `
-        <span class="valid">CERTIFICATE VALID ✅</span><br><br>
-        <b>Name:</b> ${d.name}<br>
-        <b>Certificate #:</b> ${d.certificate}<br>
-        <b>Training:</b> ${d.training}<br>
-        <b>Date:</b> ${new Date(d.date).toLocaleDateString()}<br>
-        <b>Venue:</b> ${d.venue}
-      `;
-      beep.play();
-    } else {
-      result.innerHTML = "<span class='invalid'>Certificate not found ❌</span>";
+      res.innerHTML=`<span class="valid">VALID CERTIFICATE ✅</span><br><br>
+      <b>Name:</b> ${d.name}<br>
+      <b>Certificate #:</b> ${d.certificate}<br>
+      <b>Training:</b> ${d.training}<br>
+      <b>Date:</b> ${new Date(d.date).toLocaleDateString()}<br>
+      <b>Venue:</b> ${d.venue}`;
+      document.getElementById("beep").play();
+    }else{
+      res.innerHTML="<span class='invalid'>Certificate not found ❌</span>";
     }
   });
 }
 
 function startScanner(){
-  qr-reader.style.display = "block";
-  scanner-controls.style.display = "block";
+  const reader=document.getElementById("qr-reader");
+  const controls=document.getElementById("scanner-controls");
 
-  scanner = new Html5Qrcode("qr-reader");
-  scanner.start(
-    { facingMode: "environment" },
-    { fps: 12, qrbox: 250 },
-    text => {
+  reader.style.display="block";
+  controls.style.display="block";
+
+  qrScanner=new Html5Qrcode("qr-reader");
+  qrScanner.start(
+    {facingMode:"environment"},
+    {fps:10,qrbox:250},
+    txt=>{
       stopScanner();
-      certInput.value = text;
-      verifyCert(text);
+      document.getElementById("certInput").value=txt;
+      verifyCert(txt);
     }
   ).then(()=>{
-    const video = document.querySelector("#qr-reader video");
+    const video=document.querySelector("#qr-reader video");
     if(video && video.srcObject){
-      videoTrack = video.srcObject.getVideoTracks()[0];
+      videoTrack=video.srcObject.getVideoTracks()[0];
     }
+  }).catch(e=>{
+    alert("Camera access failed. Allow camera permission.");
+    stopScanner();
   });
 }
 
 function stopScanner(){
-  if(scanner){
-    scanner.stop().then(()=>scanner.clear());
-    scanner = null;
+  const reader=document.getElementById("qr-reader");
+  const controls=document.getElementById("scanner-controls");
+
+  if(qrScanner){
+    qrScanner.stop().then(()=>qrScanner.clear());
+    qrScanner=null;
   }
-  qr-reader.style.display = "none";
-  scanner-controls.style.display = "none";
-  torchOn = false;
+  reader.style.display="none";
+  controls.style.display="none";
+  torch=false;
 }
 
-openScannerBtn.onclick = () => {
-  scanner ? stopScanner() : startScanner();
+document.getElementById("openScannerBtn").onclick=()=>{
+  qrScanner?stopScanner():startScanner();
 };
 
-flashBtn.onclick = () => {
+document.getElementById("flashBtn").onclick=()=>{
   if(!videoTrack) return;
-  const caps = videoTrack.getCapabilities();
-  if(!caps.torch){
-    alert("Flashlight not supported");
-    return;
-  }
-  torchOn = !torchOn;
-  videoTrack.applyConstraints({ advanced:[{torch:torchOn}] });
+  const cap=videoTrack.getCapabilities();
+  if(!cap.torch){alert("Flashlight not supported");return;}
+  torch=!torch;
+  videoTrack.applyConstraints({advanced:[{torch:torch}]});
 };
 </script>
 
