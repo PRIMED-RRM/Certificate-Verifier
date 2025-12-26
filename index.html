@@ -108,7 +108,7 @@ footer{
 <h2>CERTIFICATE VERIFIER</h2>
 
 <div class="description">
-Verify training certificates issued by <b>PRIMED Risk Reduction Management Training Services</b>.
+Verify training certificates issued by <b>PRIMED Risk Reduction Management Training Services</b> the official training arm of </b>ACER - Fire Rescue & Communication, Inc.</b>
 </div>
 
 <input type="text" id="certInput" placeholder="Enter Certificate Number">
@@ -128,10 +128,10 @@ Verify training certificates issued by <b>PRIMED Risk Reduction Management Train
 <div id="result"></div>
 
 <div class="disclaimer">
-This verification is based on PRIMED records only and is not a government or international certification.
+This verification is based on PRIMED records only and is not a government or international accreditation/certification.
 </div>
 
-<footer>© 2025 PRIMED RRMTS</footer>
+<footer>© 2025 PRIMED RRMTS | All rights reserved. </footer>
 
 </div>
 
@@ -141,19 +141,19 @@ const API_URL="https://script.google.com/macros/s/AKfycbyEKx6AzEjRdPjeYUMjhOZNXt
 function verify(cert){
   const c = cert || document.getElementById("certInput").value.trim();
   const res = document.getElementById("result");
-  if(!c){res.innerHTML="❌ Enter certificate number";return;}
+  if(!c){res.innerHTML="❌ Enter Certificate Number";return;}
 
   res.innerHTML="Verifying...";
   fetch(API_URL+"?cert="+encodeURIComponent(c))
   .then(r=>r.json())
   .then(d=>{
     if(d.found){
-      res.innerHTML=`✅ <b>VERIFIED</b><br><br>
+      res.innerHTML=<b>CERTIFICATE VERIFIED ✅</b><br><br>
       <b>Name:</b> ${d.name}<br>
-      <b>Certificate #:</b> ${d.certificate}<br>
-      <b>Training:</b> ${d.training}<br>
-      <b>Date:</b> ${new Date(d.date).toLocaleDateString()}<br>
-      <b>Venue:</b> ${d.venue}`;
+      <b>Certificate Number:</b> ${d.certificate}<br>
+      <b>Type of Training:</b> ${d.training}<br>
+      <b>Training Date:</b> ${new Date(d.date).toLocaleDateString()}<br>
+      <b>Training Venue:</b> ${d.venue}`;
     }else{
       res.innerHTML="❌ Certificate not found";
     }
