@@ -183,21 +183,64 @@ function openInBrowser(){ window.open(window.location.href,"_blank"); }
 
 /* VERIFY FUNCTION */
 function verify(cert){
-  const c=cert||document.getElementById("certInput").value.trim();
-  const filter=document.getElementById("trainingFilter").value;
-  const res=document.getElementById("result");
+  const c = (cert || document.getElementById("certInput").value).trim().toUpperCase();
+  const filter = document.getElementById("trainingFilter").value;
+  const res = document.getElementById("result");
 
-  if(!c){ res.innerHTML=" PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
-  res.innerHTML="Verifying, Please Wait…";
+  if(!c){
+    res.innerHTML = "PLEASE ENTER YOUR CERTIFICATE NUMBER ❌";
+    return;
+  }
 
-  fetch(API_URL+"?cert="+encodeURIComponent(c))
-    .then(r=>r.json())
-    .then(d=>{
-      if(d.found){
-        if(filter && d.training!==filter){
-          res.innerHTML="TRAINING DOES NOT MATCH THE SELECTED FILTER ❌";
-          return;
-        }
+  res.innerHTML = "Verifying, Please Wait…";
+
+  fetch(API_URL)
+    .then(r => r.json())
+    .then(data => {
+
+      const record = data.find(x =>
+        x.certificate &&
+        x.certificate.toString().trim().toUpperCase() === c
+      );
+
+      if(!record){
+        res.innerHTML = "CERTIFICATE NO VALID ❌";
+        return;
+      }
+
+      if(filter && record.training !== filter){
+        res.innerHTML = "TRAINING DOES NOT MATCH THE SELECTED FILTER ❌";
+        return;
+      }
+
+      if("vibrate" in navigator){
+        navigator.vibrate([200,100,200]);
+      }
+      beep.play(); beep.play();
+
+      const dateObj = record.date ? new Date(record.date) : null;
+      const dateOnly = dateObj
+        ? (dateObj.getMonth()+1).toString().padStart(2,'0') + "/" +
+          dateObj.getDate().toString().padStart(2,'0') + "/" +
+          dateObj.getFullYear()
+        : "";
+
+      const certLink = `${window.location.origin}${window.location.pathname}?cert=${encodeURIComponent(record.certificate)}`;
+
+      res.innerHTML = `
+        <b style="color:green">CERTIFICATE VERIFIED ✅</b><br><br>
+        <b>Name:</b> ${record.name}<br>
+        <b>Certificate Number:</b> ${record.certificate}<br>
+        <b>Type of Training:</b> ${record.training}<br>
+        <b>Training Date:</b> ${dateOnly}<br>
+        <b>Training Venue:</b> ${record.venue}<br><br>
+        <button onclick="copyLink('${certLink}')">Copy Certificate Link</button>
+      `;
+    })
+    .catch(()=>{
+      res.innerHTML = "SERVER ERROR ❌";
+    });
+}
 
         // VIBRATE AND LOUD BEEP
         if("vibrate" in navigator){ navigator.vibrate([200,100,200]); }
