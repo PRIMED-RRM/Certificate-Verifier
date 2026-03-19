@@ -57,72 +57,23 @@ const certInput = document.getElementById("certInput");
 const trainingFilter = document.getElementById("trainingFilter");
 const verifyBtn = document.getElementById("verifyBtn");
 
-// 🔹 Embed certificate data directly (no fetch needed)
+// 🔹 Embedded certificate data (no fetch, no trailing commas)
 let certData = [
-  {
-    "Name": "Willzen A. Ballen",
-    "Certificate Number": "PRIMED-STB-20251101-001",
-    "Training": "STOP THE BLEED",
-    "Venue": "Brgy. 79 Tondo, Manila",
-    "Date": "11-01-2025"
-  },
-  {
-    "Name": "Howie Jay Carillo",
-    "Certificate Number": "PRIMED-STB-20251101-002",
-    "Training": "STOP THE BLEED",
-    "Venue": "Brgy. 79 Tondo, Manila",
-    "Date": "11-01-2025"
-  },
-  {
-    "Name": "Akio T. Azuelo",
-    "Certificate Number": "PRIMED-STB-20251101-003",
-    "Training": "STOP THE BLEED",
-    "Venue": "Brgy. 79 Tondo, Manila",
-    "Date": "11-01-2025"
-  },
-  {
-    "Name": "Cyrus John V. Tamayosa",
-    "Certificate Number": "PRIMED-STB-20251101-004",
-    "Training": "STOP THE BLEED",
-    "Venue": "Brgy. 79 Tondo, Manila",
-    "Date": "11-01-2025"
-  },
-  {
-    "Name": "Ramdel L. Antonio",
-    "Certificate Number": "PRIMED-STB-20251101-005",
-    "Training": "STOP THE BLEED",
-    "Venue": "Brgy. 79 Tondo, Manila",
-    "Date": "11-01-2025"
-  },
-  {
-    "Name": "Mark Andie B. Natividad",
-    "Certificate Number": "PRIMED-STB-20251101-006",
-    "Training": "STOP THE BLEED",
-    "Venue": "Brgy. 79 Tondo, Manila",
-    "Date": "11-01-2025"
-  },
-  {
-    "Name": "Jerald R. Garcia",
-    "Certificate Number": "PRIMED-STB-20251211-001",
-    "Training": "STOP THE BLEED",
-    "Venue": "Brgy. Vergara, Mandaluyong",
-    "Date": "12-11-2025"
-  },
-  {
-    "Name": "Leon Zachary Seth D. Santos",
-    "Certificate Number": "PRIMED-DRRM-20251227-001",
-    "Training": "Intro to DRRM",
-    "Venue": "MANDALUYONG CITY",
-    "Date": "12-27-2025"
-  }
-  // 🟢 Add more trainees here
+  {"Name":"Willzen A. Ballen","Certificate Number":"PRIMED-STB-20251101-001","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Howie Jay Carillo","Certificate Number":"PRIMED-STB-20251101-002","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Akio T. Azuelo","Certificate Number":"PRIMED-STB-20251101-003","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Cyrus John V. Tamayosa","Certificate Number":"PRIMED-STB-20251101-004","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Ramdel L. Antonio","Certificate Number":"PRIMED-STB-20251101-005","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Mark Andie B. Natividad","Certificate Number":"PRIMED-STB-20251101-006","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Jerald R. Garcia","Certificate Number":"PRIMED-STB-20251211-001","Training":"STOP THE BLEED","Venue":"Brgy. Vergara, Mandaluyong","Date":"12-11-2025"},
+  {"Name":"Leon Zachary Seth D. Santos","Certificate Number":"PRIMED-DRRM-20251227-001","Training":"Intro to DRRM","Venue":"MANDALUYONG CITY","Date":"12-27-2025"}
 ];
-let loaded = true; // Always loaded since embedded
+let loaded = true;
 
-certInput.addEventListener("keydown", e=>{
-  if(e.key==="Enter") verifyCert();
+certInput.addEventListener("keydown", e => {
+  if(e.key === "Enter") verifyCert();
 });
-verifyBtn.addEventListener("click", ()=> verifyCert());
+verifyBtn.addEventListener("click", () => verifyCert());
 
 function verifyCert(cert){
   const c = (cert || certInput.value).trim().toUpperCase();
@@ -134,49 +85,51 @@ function verifyCert(cert){
 
   res.innerHTML = "VERIFYING…";
 
-  const found = certData.find(r => (r["Certificate Number"]||"").toUpperCase() === c);
+  setTimeout(()=>{
+    const found = certData.find(r => (r["Certificate Number"]||"").toUpperCase() === c);
 
-  if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
+    if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
 
-  if(filter && (found["Training"]||"").toUpperCase() !== filter.toUpperCase()){
-    beep.play(); res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌"; return;
-  }
+    if(filter && (found["Training"]||"").toUpperCase() !== filter.toUpperCase()){
+      beep.play(); res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌"; return;
+    }
 
-  const formattedDate = found["Date"] || "N/A";
+    const formattedDate = found["Date"] || "N/A";
 
-  res.innerHTML = `
-    <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
-    <b>NAME:</b> ${found["Name"].toUpperCase()}<br>
-    <b>CERTIFICATE #:</b> ${found["Certificate Number"].toUpperCase()}<br>
-    <b>TRAINING:</b> ${found["Training"].toUpperCase()}<br>
-    <b>VENUE:</b> ${found["Venue"].toUpperCase()}<br>
-    <b>DATE:</b> ${formattedDate}
-  `;
-  beep.play();
+    res.innerHTML = `
+      <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
+      <b>NAME:</b> ${found["Name"].toUpperCase()}<br>
+      <b>CERTIFICATE #:</b> ${found["Certificate Number"].toUpperCase()}<br>
+      <b>TRAINING:</b> ${found["Training"].toUpperCase()}<br>
+      <b>VENUE:</b> ${found["Venue"].toUpperCase()}<br>
+      <b>DATE:</b> ${formattedDate}
+    `;
+    beep.play();
+  }, 200); // small delay para makita ang VERIFYING...
 }
 
 /* QR Scanner */
-let stream=null, scanning=false;
+let stream = null, scanning = false;
 function toggleScanner(){
-  const video=document.getElementById("video");
-  const scanner=document.getElementById("scanner");
+  const video = document.getElementById("video");
+  const scanner = document.getElementById("scanner");
   if(scanning){ stream.getTracks().forEach(t=>t.stop()); scanner.style.display="none"; scanning=false; return; }
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
-    .then(s=>{ stream=s; video.srcObject=s; scanner.style.display="block"; scanning=true; video.onloadedmetadata=()=>{ video.play(); scanLoop(); }; })
+    .then(s => { stream = s; video.srcObject = s; scanner.style.display="block"; scanning=true; video.onloadedmetadata = () => { video.play(); scanLoop(); }; })
     .catch(()=>alert("❌ CAMERA ACCESS DENIED ❌"));
 }
 function scanLoop(){
   if(!scanning) return;
-  const video=document.getElementById("video");
-  const canvas=document.getElementById("canvas");
-  const ctx=canvas.getContext("2d");
-  const scale=400/Math.max(video.videoWidth,video.videoHeight);
-  canvas.width=video.videoWidth*scale;
-  canvas.height=video.videoHeight*scale;
-  ctx.drawImage(video,0,0,canvas.width,canvas.height);
-  const img=ctx.getImageData(0,0,canvas.width,canvas.height);
-  const qr=jsQR(img.data,canvas.width,canvas.height);
-  if(qr){ certInput.value=qr.data; toggleScanner(); verifyCert(qr.data); return; }
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const scale = 400 / Math.max(video.videoWidth, video.videoHeight);
+  canvas.width = video.videoWidth * scale;
+  canvas.height = video.videoHeight * scale;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const qr = jsQR(img.data, canvas.width, canvas.height);
+  if(qr){ certInput.value = qr.data; toggleScanner(); verifyCert(qr.data); return; }
   requestAnimationFrame(scanLoop);
 }
 </script>
