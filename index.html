@@ -30,13 +30,7 @@ footer{font-size:12px;margin-top:14px;color:#666;}
 <select id="trainingFilter">
   <option value="">ALL TRAININGS</option>
   <option value="STOP THE BLEED">STOP THE BLEED</option>
-  <option value="STANDARD FIRST AID">STANDARD FIRST AID (SFAT)</option>
-  <option value="BASIC FIRST AID">BASIC FIRST AID (BFAT)</option>
-  <option value="BASIC LIFE SUPPORT">BASIC LIFE SUPPORT (BLS)</option>
-  <option value="CPR">CPR</option>
-  <option value="BASIC FIRE SAFETY SEMINAR">BASIC FIRE SAFETY SEMINAR</option>
-  <option value="INTRODUCTION TO DRRM">INTRODUCTION TO DRRM</option>
-  <option value="EARTHQUAKE PREPAREDNESS SEMINAR">EARTHQUAKE PREPAREDNESS SEMINAR</option>
+  <option value="Intro to DRRM">INTRO TO DRRM</option>
 </select>
 <input id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
 <div>
@@ -58,46 +52,49 @@ This verification is based solely on PRIMED records and is not government certif
 
 <script>
 document.getElementById("year").innerText = new Date().getFullYear();
-const beep=document.getElementById("beep");
-const certInput=document.getElementById("certInput");
-const trainingFilter=document.getElementById("trainingFilter");
+const beep = document.getElementById("beep");
+const certInput = document.getElementById("certInput");
+const trainingFilter = document.getElementById("trainingFilter");
 
-let certData=[];
+let certData = [];
 
-// Load JSON from GitHub
+// Load your JSON from GitHub raw URL
 fetch('https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/certificates.json')
-  .then(r=>r.json())
-  .then(data=>{ certData=data; console.log('Certificates loaded:', certData.length); })
-  .catch(err=>console.error('Failed to load certificates.json',err));
+  .then(r => r.json())
+  .then(data => { certData = data; console.log('Certificates loaded:', certData.length); })
+  .catch(err => console.error('Failed to load certificates.json', err));
 
 certInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") verifyCert();
 });
 
 function verifyCert(cert){
-  const c=(cert||certInput.value).trim().toUpperCase();
-  const filter=trainingFilter.value;
-  const res=document.getElementById("result");
+  const c = (cert || certInput.value).trim().toUpperCase();
+  const filter = trainingFilter.value;
+  const res = document.getElementById("result");
 
   if(!c){ res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
   if(!certData.length){ res.innerHTML="❌ CERTIFICATE DATA NOT LOADED ❌"; return; }
 
-  res.innerHTML="VERIFYING…";
+  res.innerHTML = "VERIFYING…";
 
-  const found = certData.find(r => (r.certificate||"").toString().trim().toUpperCase()===c);
+  // Match certificate number (case-insensitive)
+  const found = certData.find(r => (r["Certificate Number"]||"").toUpperCase() === c);
 
   if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
-  if(filter && found.training.toUpperCase()!==filter.toUpperCase()){ beep.play(); res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌"; return; }
 
-  let formattedDate="N/A";
-  if(found.date){ const dt=new Date(found.date); if(!isNaN(dt)) formattedDate=(dt.getMonth()+1).toString().padStart(2,'0')+"-"+dt.getDate().toString().padStart(2,'0')+"-"+dt.getFullYear(); }
+  if(filter && (found["Training"]||"").toUpperCase() !== filter.toUpperCase()){
+    beep.play(); res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌"; return;
+  }
 
-  res.innerHTML=`
+  let formattedDate = found["Date"] || "N/A";
+
+  res.innerHTML = `
     <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
-    <b>NAME:</b> ${found.name.toUpperCase()}<br>
-    <b>CERTIFICATE #:</b> ${found.certificate.toUpperCase()}<br>
-    <b>TRAINING:</b> ${found.training.toUpperCase()}<br>
-    <b>VENUE:</b> ${found.venue.toUpperCase()}<br>
+    <b>NAME:</b> ${found["Name"].toUpperCase()}<br>
+    <b>CERTIFICATE #:</b> ${found["Certificate Number"].toUpperCase()}<br>
+    <b>TRAINING:</b> ${found["Training"].toUpperCase()}<br>
+    <b>VENUE:</b> ${found["Venue"].toUpperCase()}<br>
     <b>DATE:</b> ${formattedDate}
   `;
   beep.play();
