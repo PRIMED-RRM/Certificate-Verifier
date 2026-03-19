@@ -4,21 +4,45 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PRIMED CERTIFICATE VERIFIER</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+
 <style>
-body{font-family:Roboto,sans-serif;background:linear-gradient(180deg,#eef3f9,#f9fbfd);display:flex;justify-content:center;align-items:center;height:100vh;margin:0;}
-.container{background:#fff;padding:26px;border-radius:14px;width:95%;max-width:480px;box-shadow:0 8px 28px rgba(0,0,0,.15);text-align:center;}
+body{
+  font-family:Roboto,sans-serif;
+  background:linear-gradient(180deg,#eef3f9,#f9fbfd);
+  display:flex;justify-content:center;align-items:center;
+  height:100vh;margin:0;
+}
+.container{
+  background:#fff;padding:26px;border-radius:14px;
+  width:95%;max-width:480px;
+  box-shadow:0 8px 28px rgba(0,0,0,.15);
+  text-align:center;
+}
 .logos{display:flex;justify-content:center;gap:14px;margin-bottom:10px;}
 .logos img{width:75px}
 h2{margin:10px 0;color:#0d6efd;font-size:20px;font-weight:700;text-transform:uppercase;}
-select,input,button{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ccc;}
-button{background:#0d6efd;color:#fff;border:none;font-weight:600;cursor:pointer;margin-top:4px;}
-#scanner{display:none;margin-top:12px;} video{width:100%;border-radius:12px;}
-#result{margin-top:12px;background:#f3f6fb;padding:12px;border-radius:10px;font-size:14px;text-align:left;}
+select,input,button{
+  width:100%;padding:10px;margin-bottom:10px;
+  border-radius:8px;border:1px solid #ccc;
+}
+button{
+  background:#0d6efd;color:#fff;border:none;
+  font-weight:600;cursor:pointer;margin-top:4px;
+}
+#scanner{display:none;margin-top:12px;}
+video{width:100%;border-radius:12px;}
+#result{
+  margin-top:12px;background:#f3f6fb;
+  padding:12px;border-radius:10px;
+  font-size:14px;text-align:left;
+}
 footer{font-size:12px;margin-top:14px;color:#666;}
 </style>
 </head>
+
 <body>
 <div class="container">
 
@@ -42,9 +66,10 @@ footer{font-size:12px;margin-top:14px;color:#666;}
 </select>
 
 <input id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
+
 <div>
-  <button onclick="verifyCert()">VERIFY IT </button>
-  <button onclick="toggleScanner()">SCAN QR CODE </button>
+  <button onclick="verifyCert()">VERIFY IT</button>
+  <button onclick="toggleScanner()">SCAN QR CODE</button>
 </div>
 
 <div id="scanner">
@@ -56,76 +81,84 @@ footer{font-size:12px;margin-top:14px;color:#666;}
 
 <footer>
 This verification is based solely on PRIMED records and is not government certification nor international accreditation/certification.
-<br>
-<br>
+<br><br>
 ©<span id="year"></span> PRIMEDRRMTS & ACER-FRCI | All rights reserved.
 </footer>
 
-<script>
-document.getElementById("year").innerText = new Date().getFullYear();
-</script>
+</div>
 
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbxu6qX7Wf9QcP7LAfZXz_8eR8uPNcLHcNFOzV_5v5O6A5bvb4n6OA8Z95A_k6Yi4sYWbw/exec";
-const beep = document.getElementById("beep");
-const certInput = document.getElementById("certInput");
-const trainingFilter = document.getElementById("trainingFilter");
+document.getElementById("year").innerText = new Date().getFullYear();
 
-/* ENTER KEY */
+const API_URL="https://script.google.com/macros/s/AKfycbxu6qX7Wf9QcP7LAfZXz_8eR8uPNcLHcNFOzV_5v5O6A5bvb4n6OA8Z95A_k6Yi4sYWbw/exec";
+const beep=document.getElementById("beep");
+const certInput=document.getElementById("certInput");
+const trainingFilter=document.getElementById("trainingFilter");
+
 certInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") verifyCert();
 });
 
-/* VERIFY FUNCTION */
 function verifyCert(cert){
-  const c = cert || certInput.value.trim();
-  const filter = trainingFilter.value;
-  const res = document.getElementById("result");
+  const c=cert||certInput.value.trim();
+  const filter=trainingFilter.value;
+  const res=document.getElementById("result");
 
-  if(!c){ res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
+  if(!c){
+    res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌";
+    return;
+  }
 
   res.innerHTML="VERIFYING…";
 
   fetch(API_URL+"?cert="+encodeURIComponent(c))
     .then(r=>r.json())
     .then(d=>{
-      if(!d.found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
-
-      if(filter && d.training.toUpperCase() !== filter.toUpperCase()){
+      if(!d.found){
         beep.play();
-        res.innerHTML="❌ TRAINING DOES NOT MATCH SELECTED FILTER ❌";
+        res.innerHTML="❌ CERTIFICATE NOT VALID ❌";
         return;
       }
 
-      // Format date MM-DD-YYYY
-      let formattedDate = "";
-      if(d.date){
-        const dt = new Date(d.date);
-        formattedDate = (dt.getMonth()+1).toString().padStart(2,'0') + "-" +
-                        dt.getDate().toString().padStart(2,'0') + "-" +
-                        dt.getFullYear();
+      if(filter && d.training.toUpperCase() !== filter.toUpperCase()){
+        beep.play();
+        res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌";
+        return;
       }
 
-      // Result
-      res.innerHTML = `<b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
-        <b>NAME:</b> ${d.name.toUpperCase()}<br>
-        <b>CERTIFICATE #:</b> ${d.certificate.toUpperCase()}<br>
-        <b>TRAINING:</b> ${d.training.toUpperCase()}<br>
-        <b>VENUE:</b> ${d.venue.toUpperCase()}<br>
-        <b>DATE:</b> ${formattedDate}`;
+      let formattedDate="";
+      if(d.date){
+        const dt=new Date(d.date);
+        formattedDate=(dt.getMonth()+1).toString().padStart(2,'0')+"-"+
+                      dt.getDate().toString().padStart(2,'0')+"-"+
+                      dt.getFullYear();
+      }
+
+      res.innerHTML = `
+      <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
+      <b>NAME:</b> ${d.name.toUpperCase()}<br>
+      <b>CERTIFICATE #:</b> ${d.certificate.toUpperCase()}<br>
+      <b>TRAINING:</b> ${d.training.toUpperCase()}<br>
+      <b>VENUE:</b> ${d.venue.toUpperCase()}<br>
+      <b>DATE:</b> ${formattedDate}
+      `;
 
       beep.play();
     })
-    .catch(()=>{ beep.play(); res.innerHTML="❌ SERVER ERROR ❌"; });
+    .catch(()=>{
+      beep.play();
+      res.innerHTML="❌ SERVER ERROR ❌";
+    });
 }
 
-/* QR SCANNER USING JSQR */
+/* QR SCANNER */
 let stream=null, scanning=false;
+
 function toggleScanner(){
-  const video = document.getElementById("video");
-  const scanner = document.getElementById("scanner");
+  const video=document.getElementById("video");
+  const scanner=document.getElementById("scanner");
 
   if(scanning){
     stream.getTracks().forEach(t=>t.stop());
@@ -140,27 +173,31 @@ function toggleScanner(){
       video.srcObject=s;
       scanner.style.display="block";
       scanning=true;
-      video.onloadedmetadata = ()=>{ video.play(); scanLoop(); };
+      video.onloadedmetadata=()=>{
+        video.play();
+        scanLoop();
+      };
     })
     .catch(()=>alert("❌ CAMERA ACCESS DENIED ❌"));
 }
 
 function scanLoop(){
   if(!scanning) return;
-  const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
 
-  const scale = 400 / Math.max(video.videoWidth, video.videoHeight);
-  canvas.width = video.videoWidth * scale;
-  canvas.height = video.videoHeight * scale;
+  const video=document.getElementById("video");
+  const canvas=document.getElementById("canvas");
+  const ctx=canvas.getContext("2d");
+
+  const scale=400/Math.max(video.videoWidth,video.videoHeight);
+  canvas.width=video.videoWidth*scale;
+  canvas.height=video.videoHeight*scale;
 
   ctx.drawImage(video,0,0,canvas.width,canvas.height);
-  const img = ctx.getImageData(0,0,canvas.width,canvas.height);
-  const qr = jsQR(img.data, canvas.width, canvas.height);
+  const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const qr=jsQR(img.data,canvas.width,canvas.height);
 
   if(qr){
-    certInput.value = qr.data;
+    certInput.value=qr.data;
     toggleScanner();
     verifyCert(qr.data);
     return;
@@ -169,5 +206,6 @@ function scanLoop(){
   requestAnimationFrame(scanLoop);
 }
 </script>
+
 </body>
 </html>
