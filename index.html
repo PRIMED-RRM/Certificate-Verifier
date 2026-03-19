@@ -7,45 +7,98 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <style>
-body{font-family:Roboto,sans-serif;background:linear-gradient(180deg,#eef3f9,#f9fbfd);display:flex;justify-content:center;align-items:center;height:100vh;margin:0;}
-.container{background:#fff;padding:26px;border-radius:14px;width:95%;max-width:480px;box-shadow:0 8px 28px rgba(0,0,0,.15);text-align:center;}
-.logos{display:flex;justify-content:center;gap:14px;margin-bottom:10px;}
-.logos img{width:75px}
-h2{margin:10px 0;color:#0d6efd;font-size:20px;font-weight:700;text-transform:uppercase;}
-select,input,button{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ccc;}
-button{background:#0d6efd;color:#fff;border:none;font-weight:600;cursor:pointer;margin-top:4px;}
-#scanner{display:none;margin-top:12px;}
-video{width:100%;border-radius:12px;}
-#result{margin-top:12px;background:#f3f6fb;padding:12px;border-radius:10px;font-size:14px;text-align:left;}
-footer{font-size:12px;margin-top:14px;color:#666;}
+body {
+  font-family: Roboto, sans-serif;
+  background: linear-gradient(180deg,#eef3f9,#f9fbfd);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.container {
+  background: #fff;
+  padding: 26px;
+  border-radius: 14px;
+  width: 95%;
+  max-width: 480px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.15);
+  text-align: center;
+}
+.logos {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.logos img { width: 75px; }
+h2 {
+  margin: 10px 0;
+  color: #0d6efd;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+button {
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+#scanner { display: none; margin-top: 12px; }
+video { width: 100%; border-radius: 12px; }
+#result {
+  margin-top: 12px;
+  background: #f3f6fb;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: left;
+}
+footer {
+  font-size: 12px;
+  margin-top: 14px;
+  color: #666;
+}
 </style>
 </head>
 <body>
 <div class="container">
-<div class="logos">
-  <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/PRIMED%20Logo%201.png">
-  <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/BackgroundEraser_20251102_093006990.png">
-</div>
-<h2>CERTIFICATE VERIFIER</h2>
+  <div class="logos">
+    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/PRIMED%20Logo%201.png">
+    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/BackgroundEraser_20251102_093006990.png">
+  </div>
 
-<input id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
+  <h2>CERTIFICATE VERIFIER</h2>
 
-<div>
-  <button id="verifyBtn">VERIFY IT</button>
-  <button onclick="toggleScanner()">SCAN QR CODE</button>
-</div>
+  <input id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
 
-<div id="scanner">
-  <video id="video" autoplay playsinline></video>
-  <canvas id="canvas" hidden></canvas>
-</div>
+  <div>
+    <button id="verifyBtn">VERIFY IT</button>
+    <button onclick="toggleScanner()">SCAN QR CODE</button>
+  </div>
 
-<div id="result"></div>
-<footer>
-This verification is based solely on PRIMED records and is not government certification nor international accreditation/certification.
-<br><br>
-©<span id="year"></span> PRIMEDRRMTS & ACER-FRCI | All rights reserved.
-</footer>
+  <div id="scanner">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" hidden></canvas>
+  </div>
+
+  <div id="result"></div>
+
+  <footer>
+    This verification is based solely on PRIMED records and is not government certification nor international accreditation/certification.
+    <br><br>
+    ©<span id="year"></span> PRIMEDRRMTS & ACER-FRCI | All rights reserved.
+  </footer>
 </div>
 
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
@@ -54,10 +107,9 @@ This verification is based solely on PRIMED records and is not government certif
 document.getElementById("year").innerText = new Date().getFullYear();
 const beep = document.getElementById("beep");
 const certInput = document.getElementById("certInput");
-const trainingFilter = document.getElementById("trainingFilter");
 const verifyBtn = document.getElementById("verifyBtn");
 
-// 🔹 Embedded certificate data (no fetch, no trailing commas)
+// 🔹 Embedded certificate data
 let certData = [
   {"Name":"Willzen A. Ballen","Certificate Number":"PRIMED-STB-20251101-001","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
   {"Name":"Howie Jay Carillo","Certificate Number":"PRIMED-STB-20251101-002","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
@@ -70,14 +122,13 @@ let certData = [
 ];
 let loaded = true;
 
-certInput.addEventListener("keydown", e => {
-  if(e.key === "Enter") verifyCert();
-});
+// 🔹 Event listeners
+certInput.addEventListener("keydown", e => { if(e.key === "Enter") verifyCert(); });
 verifyBtn.addEventListener("click", () => verifyCert());
 
+// 🔹 Verification function
 function verifyCert(cert){
-  const c = (cert || certInput.value).trim().toUpperCase();
-  const filter = trainingFilter.value;
+  const c = (cert || certInput.value).trim().toUpperCase().replace(/\s/g,"");
   const res = document.getElementById("result");
 
   if(!c){ res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
@@ -86,13 +137,9 @@ function verifyCert(cert){
   res.innerHTML = "VERIFYING…";
 
   setTimeout(()=>{
-    const found = certData.find(r => (r["Certificate Number"]||"").toUpperCase() === c);
+    const found = certData.find(r => (r["Certificate Number"]||"").toUpperCase().replace(/\s/g,"") === c);
 
     if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
-
-    if(filter && (found["Training"]||"").toUpperCase() !== filter.toUpperCase()){
-      beep.play(); res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌"; return;
-    }
 
     const formattedDate = found["Date"] || "N/A";
 
@@ -105,31 +152,262 @@ function verifyCert(cert){
       <b>DATE:</b> ${formattedDate}
     `;
     beep.play();
-  }, 200); // small delay para makita ang VERIFYING...
+  }, 200);
 }
 
-/* QR Scanner */
+// 🔹 QR Scanner
 let stream = null, scanning = false;
 function toggleScanner(){
   const video = document.getElementById("video");
   const scanner = document.getElementById("scanner");
-  if(scanning){ stream.getTracks().forEach(t=>t.stop()); scanner.style.display="none"; scanning=false; return; }
+
+  if(scanning){ 
+    stream.getTracks().forEach(t=>t.stop()); 
+    scanner.style.display="none"; 
+    scanning=false; 
+    return; 
+  }
+
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
-    .then(s => { stream = s; video.srcObject = s; scanner.style.display="block"; scanning=true; video.onloadedmetadata = () => { video.play(); scanLoop(); }; })
+    .then(s => { 
+      stream = s; 
+      video.srcObject = s; 
+      scanner.style.display="block"; 
+      scanning=true; 
+      video.onloadedmetadata = () => { video.play(); scanLoop(); }; 
+    })
     .catch(()=>alert("❌ CAMERA ACCESS DENIED ❌"));
 }
+
 function scanLoop(){
   if(!scanning) return;
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-  const scale = 400 / Math.max(video.videoWidth, video.videoHeight);
-  canvas.width = video.videoWidth * scale;
-  canvas.height = video.videoHeight * scale;
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const qr = jsQR(img.data, canvas.width, canvas.height);
-  if(qr){ certInput.value = qr.data; toggleScanner(); verifyCert(qr.data); return; }
+
+  if(qr){
+    certInput.value = qr.data;
+    verifyCert(qr.data);
+    scanning = false;
+    stream.getTracks().forEach(t => t.stop());
+    document.getElementById("scanner").style.display = "none";
+    return;
+  }
+
+  requestAnimationFrame(scanLoop);
+}
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRIMED CERTIFICATE VERIFIER</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+<style>
+body {
+  font-family: Roboto, sans-serif;
+  background: linear-gradient(180deg,#eef3f9,#f9fbfd);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.container {
+  background: #fff;
+  padding: 26px;
+  border-radius: 14px;
+  width: 95%;
+  max-width: 480px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.15);
+  text-align: center;
+}
+.logos {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.logos img { width: 75px; }
+h2 {
+  margin: 10px 0;
+  color: #0d6efd;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+button {
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+#scanner { display: none; margin-top: 12px; }
+video { width: 100%; border-radius: 12px; }
+#result {
+  margin-top: 12px;
+  background: #f3f6fb;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: left;
+}
+footer {
+  font-size: 12px;
+  margin-top: 14px;
+  color: #666;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logos">
+    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/PRIMED%20Logo%201.png">
+    <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/BackgroundEraser_20251102_093006990.png">
+  </div>
+
+  <h2>CERTIFICATE VERIFIER</h2>
+
+  <input id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
+
+  <div>
+    <button id="verifyBtn">VERIFY IT</button>
+    <button onclick="toggleScanner()">SCAN QR CODE</button>
+  </div>
+
+  <div id="scanner">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" hidden></canvas>
+  </div>
+
+  <div id="result"></div>
+
+  <footer>
+    This verification is based solely on PRIMED records and is not government certification nor international accreditation/certification.
+    <br><br>
+    ©<span id="year"></span> PRIMEDRRMTS & ACER-FRCI | All rights reserved.
+  </footer>
+</div>
+
+<audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
+<script>
+document.getElementById("year").innerText = new Date().getFullYear();
+const beep = document.getElementById("beep");
+const certInput = document.getElementById("certInput");
+const verifyBtn = document.getElementById("verifyBtn");
+
+// 🔹 Embedded certificate data
+let certData = [
+  {"Name":"Willzen A. Ballen","Certificate Number":"PRIMED-STB-20251101-001","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Howie Jay Carillo","Certificate Number":"PRIMED-STB-20251101-002","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Akio T. Azuelo","Certificate Number":"PRIMED-STB-20251101-003","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Cyrus John V. Tamayosa","Certificate Number":"PRIMED-STB-20251101-004","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Ramdel L. Antonio","Certificate Number":"PRIMED-STB-20251101-005","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Mark Andie B. Natividad","Certificate Number":"PRIMED-STB-20251101-006","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
+  {"Name":"Jerald R. Garcia","Certificate Number":"PRIMED-STB-20251211-001","Training":"STOP THE BLEED","Venue":"Brgy. Vergara, Mandaluyong","Date":"12-11-2025"},
+  {"Name":"Leon Zachary Seth D. Santos","Certificate Number":"PRIMED-DRRM-20251227-001","Training":"Intro to DRRM","Venue":"MANDALUYONG CITY","Date":"12-27-2025"}
+];
+let loaded = true;
+
+// 🔹 Event listeners
+certInput.addEventListener("keydown", e => { if(e.key === "Enter") verifyCert(); });
+verifyBtn.addEventListener("click", () => verifyCert());
+
+// 🔹 Verification function
+function verifyCert(cert){
+  const c = (cert || certInput.value).trim().toUpperCase().replace(/\s/g,"");
+  const res = document.getElementById("result");
+
+  if(!c){ res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
+  if(!loaded){ res.innerHTML="❌ CERTIFICATE DATA NOT LOADED ❌"; return; }
+
+  res.innerHTML = "VERIFYING…";
+
+  setTimeout(()=>{
+    const found = certData.find(r => (r["Certificate Number"]||"").toUpperCase().replace(/\s/g,"") === c);
+
+    if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
+
+    const formattedDate = found["Date"] || "N/A";
+
+    res.innerHTML = `
+      <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
+      <b>NAME:</b> ${found["Name"].toUpperCase()}<br>
+      <b>CERTIFICATE #:</b> ${found["Certificate Number"].toUpperCase()}<br>
+      <b>TRAINING:</b> ${found["Training"].toUpperCase()}<br>
+      <b>VENUE:</b> ${found["Venue"].toUpperCase()}<br>
+      <b>DATE:</b> ${formattedDate}
+    `;
+    beep.play();
+  }, 200);
+}
+
+// 🔹 QR Scanner
+let stream = null, scanning = false;
+function toggleScanner(){
+  const video = document.getElementById("video");
+  const scanner = document.getElementById("scanner");
+
+  if(scanning){ 
+    stream.getTracks().forEach(t=>t.stop()); 
+    scanner.style.display="none"; 
+    scanning=false; 
+    return; 
+  }
+
+  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
+    .then(s => { 
+      stream = s; 
+      video.srcObject = s; 
+      scanner.style.display="block"; 
+      scanning=true; 
+      video.onloadedmetadata = () => { video.play(); scanLoop(); }; 
+    })
+    .catch(()=>alert("❌ CAMERA ACCESS DENIED ❌"));
+}
+
+function scanLoop(){
+  if(!scanning) return;
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const qr = jsQR(img.data, canvas.width, canvas.height);
+
+  if(qr){
+    certInput.value = qr.data;
+    verifyCert(qr.data);
+    scanning = false;
+    stream.getTracks().forEach(t => t.stop());
+    document.getElementById("scanner").style.display = "none";
+    return;
+  }
+
   requestAnimationFrame(scanLoop);
 }
 </script>
