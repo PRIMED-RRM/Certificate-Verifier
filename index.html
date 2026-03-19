@@ -27,20 +27,25 @@ footer{font-size:12px;margin-top:14px;color:#666;}
   <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/BackgroundEraser_20251102_093006990.png">
 </div>
 <h2>CERTIFICATE VERIFIER</h2>
+
 <select id="trainingFilter">
   <option value="">ALL TRAININGS</option>
   <option value="STOP THE BLEED">STOP THE BLEED</option>
   <option value="Intro to DRRM">INTRO TO DRRM</option>
 </select>
+
 <input id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
+
 <div>
-  <button onclick="verifyCert()">VERIFY IT</button>
+  <button id="verifyBtn">VERIFY IT</button>
   <button onclick="toggleScanner()">SCAN QR CODE</button>
 </div>
+
 <div id="scanner">
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas" hidden></canvas>
 </div>
+
 <div id="result"></div>
 <footer>
 This verification is based solely on PRIMED records and is not government certification nor international accreditation/certification.
@@ -48,6 +53,7 @@ This verification is based solely on PRIMED records and is not government certif
 ©<span id="year"></span> PRIMEDRRMTS & ACER-FRCI | All rights reserved.
 </footer>
 </div>
+
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script>
@@ -55,18 +61,21 @@ document.getElementById("year").innerText = new Date().getFullYear();
 const beep = document.getElementById("beep");
 const certInput = document.getElementById("certInput");
 const trainingFilter = document.getElementById("trainingFilter");
+const verifyBtn = document.getElementById("verifyBtn");
 
 let certData = [];
+let loaded = false;
 
-// Load your JSON from GitHub raw URL
-fetch('https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/certificates.json')
+// Load JSON from root folder
+fetch('certificates.json')
   .then(r => r.json())
-  .then(data => { certData = data; console.log('Certificates loaded:', certData.length); })
+  .then(data => { certData = data; loaded = true; console.log('Certificates loaded:', certData.length); })
   .catch(err => console.error('Failed to load certificates.json', err));
 
 certInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") verifyCert();
 });
+verifyBtn.addEventListener("click", ()=> verifyCert());
 
 function verifyCert(cert){
   const c = (cert || certInput.value).trim().toUpperCase();
@@ -74,11 +83,10 @@ function verifyCert(cert){
   const res = document.getElementById("result");
 
   if(!c){ res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
-  if(!certData.length){ res.innerHTML="❌ CERTIFICATE DATA NOT LOADED ❌"; return; }
+  if(!loaded){ res.innerHTML="❌ CERTIFICATE DATA NOT LOADED ❌"; return; }
 
   res.innerHTML = "VERIFYING…";
 
-  // Match certificate number (case-insensitive)
   const found = certData.find(r => (r["Certificate Number"]||"").toUpperCase() === c);
 
   if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
@@ -87,7 +95,7 @@ function verifyCert(cert){
     beep.play(); res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌"; return;
   }
 
-  let formattedDate = found["Date"] || "N/A";
+  const formattedDate = found["Date"] || "N/A";
 
   res.innerHTML = `
     <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
