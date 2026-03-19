@@ -63,14 +63,67 @@ const certInput = document.getElementById("certInput");
 const trainingFilter = document.getElementById("trainingFilter");
 const verifyBtn = document.getElementById("verifyBtn");
 
-let certData = [];
-let loaded = false;
-
-// Load JSON from root folder
-fetch('certificates.json')
-  .then(r => r.json())
-  .then(data => { certData = data; loaded = true; console.log('Certificates loaded:', certData.length); })
-  .catch(err => console.error('Failed to load certificates.json', err));
+// 🔹 Embed certificate data directly (no fetch needed)
+let certData = [
+  {
+    "Name": "Willzen A. Ballen",
+    "Certificate Number": "PRIMED-STB-20251101-001",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Howie Jay Carillo",
+    "Certificate Number": "PRIMED-STB-20251101-002",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Akio T. Azuelo",
+    "Certificate Number": "PRIMED-STB-20251101-003",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Cyrus John V. Tamayosa",
+    "Certificate Number": "PRIMED-STB-20251101-004",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Ramdel L. Antonio",
+    "Certificate Number": "PRIMED-STB-20251101-005",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Mark Andie B. Natividad",
+    "Certificate Number": "PRIMED-STB-20251101-006",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Jerald R. Garcia",
+    "Certificate Number": "PRIMED-STB-20251211-001",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. Vergara, Mandaluyong",
+    "Date": "12-11-2025"
+  },
+  {
+    "Name": "Leon Zachary Seth D. Santos",
+    "Certificate Number": "PRIMED-DRRM-20251227-001",
+    "Training": "Intro to DRRM",
+    "Venue": "MANDALUYONG CITY",
+    "Date": "12-27-2025"
+  }
+  // 🟢 Add more trainees here
+];
+let loaded = true; // Always loaded since embedded
 
 certInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") verifyCert();
