@@ -4,10 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PRIMED CERTIFICATE VERIFIER</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
-
 <style>
 body{
   font-family:Roboto,sans-serif;
@@ -42,17 +40,13 @@ video{width:100%;border-radius:12px;}
 footer{font-size:12px;margin-top:14px;color:#666;}
 </style>
 </head>
-
 <body>
 <div class="container">
-
 <div class="logos">
   <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/PRIMED%20Logo%201.png">
   <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/BackgroundEraser_20251102_093006990.png">
 </div>
-
 <h2>CERTIFICATE VERIFIER</h2>
-
 <select id="trainingFilter">
   <option value="">ALL TRAININGS</option>
   <option value="STOP THE BLEED">STOP THE BLEED</option>
@@ -64,37 +58,27 @@ footer{font-size:12px;margin-top:14px;color:#666;}
   <option value="INTRODUCTION TO DRRM">INTRODUCTION TO DRRM</option>
   <option value="EARTHQUAKE PREPAREDNESS SEMINAR">EARTHQUAKE PREPAREDNESS SEMINAR</option>
 </select>
-
 <input id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
-
 <div>
   <button onclick="verifyCert()">VERIFY IT</button>
   <button onclick="toggleScanner()">SCAN QR CODE</button>
 </div>
-
 <div id="scanner">
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas" hidden></canvas>
 </div>
-
 <div id="result"></div>
-
 <footer>
 This verification is based solely on PRIMED records and is not government certification nor international accreditation/certification.
 <br><br>
 ©<span id="year"></span> PRIMEDRRMTS & ACER-FRCI | All rights reserved.
 </footer>
-
 </div>
-
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
-
 <script>
 document.getElementById("year").innerText = new Date().getFullYear();
 
-// ✅ UPDATED API
 const API_URL="https://script.google.com/macros/s/AKfycby_IdJ2TdbTjn2q3DmAhsfHk03XemJCGV9fK-vzyI-G1K4zvKK9HODMFQOTbppC4iXj/exec";
-
 const beep=document.getElementById("beep");
 const certInput=document.getElementById("certInput");
 const trainingFilter=document.getElementById("trainingFilter");
@@ -104,12 +88,12 @@ certInput.addEventListener("keydown", e=>{
 });
 
 function verifyCert(cert){
-  const c=cert||certInput.value.trim();
+  const c=cert||certInput.value.trim().toUpperCase();
   const filter=trainingFilter.value;
   const res=document.getElementById("result");
 
   if(!c){
-    res.innerHTML="PLEASE ENTER YOUR CERTIFICATE NUMBER";
+    res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌";
     return;
   }
 
@@ -118,8 +102,7 @@ function verifyCert(cert){
   fetch(API_URL+"?cert="+encodeURIComponent(c))
     .then(r=>r.json())
     .then(d=>{
-
-      console.log("API RESPONSE:", d); // 🔍 debug
+      console.log("API RESPONSE:", d);
 
       if(!d.found){
         beep.play();
@@ -127,18 +110,10 @@ function verifyCert(cert){
         return;
       }
 
-      // fallback if empty
       const name = d.name || "N/A";
       const certificate = d.certificate || c;
       const training = d.training || "N/A";
       const venue = d.venue || "N/A";
-
-      if(filter && training.toUpperCase() !== filter.toUpperCase()){
-        beep.play();
-        res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌";
-        return;
-      }
-
       let formattedDate="N/A";
       if(d.date){
         const dt=new Date(d.date);
@@ -149,6 +124,12 @@ function verifyCert(cert){
         }
       }
 
+      if(filter && training.toUpperCase() !== filter.toUpperCase()){
+        beep.play();
+        res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌";
+        return;
+      }
+
       res.innerHTML = `
       <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
       <b>NAME:</b> ${name.toUpperCase()}<br>
@@ -157,7 +138,6 @@ function verifyCert(cert){
       <b>VENUE:</b> ${venue.toUpperCase()}<br>
       <b>DATE:</b> ${formattedDate}
       `;
-
       beep.play();
     })
     .catch(err=>{
@@ -187,17 +167,13 @@ function toggleScanner(){
       video.srcObject=s;
       scanner.style.display="block";
       scanning=true;
-      video.onloadedmetadata=()=>{
-        video.play();
-        scanLoop();
-      };
+      video.onloadedmetadata=()=>{ video.play(); scanLoop(); };
     })
     .catch(()=>alert("❌ CAMERA ACCESS DENIED ❌"));
 }
 
 function scanLoop(){
   if(!scanning) return;
-
   const video=document.getElementById("video");
   const canvas=document.getElementById("canvas");
   const ctx=canvas.getContext("2d");
@@ -216,10 +192,8 @@ function scanLoop(){
     verifyCert(qr.data);
     return;
   }
-
   requestAnimationFrame(scanLoop);
 }
 </script>
-
 </body>
 </html>
