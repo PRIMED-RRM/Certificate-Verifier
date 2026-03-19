@@ -114,7 +114,7 @@ const beep = document.getElementById("beep");
 const certInput = document.getElementById("certInput");
 const verifyBtn = document.getElementById("verifyBtn");
 
-// 🔹 Certificate data — now easy to add vertically
+// 🔹 Certificate data — vertical, easy to add
 let certData = [
   {
     "Name": "Willzen A. Ballen",
@@ -163,7 +163,7 @@ let certData = [
     "Certificate Number": "PRIMED-STB-20251211-001",
     "Training": "STOP THE BLEED",
     "Venue": "Brgy. Vergara, Mandaluyong",
-    "Date": "12-11-2025"
+    "Date": "12/11/2025"
   },
   {
     "Name": "Leon Zachary Seth D. Santos",
@@ -195,7 +195,8 @@ function verifyCert(cert){
 
     if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
 
-    const formattedDate = found["Date"]; // MM-DD-YYYY
+    // ✅ MM-DD-YYYY, auto-convert slashes to dashes
+    const formattedDate = (found["Date"] || "").replaceAll("/", "-");
 
     res.innerHTML = `
       <div class="verified-box">
