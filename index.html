@@ -59,11 +59,15 @@ button {
 video { width: 100%; border-radius: 12px; }
 #result {
   margin-top: 12px;
-  background: #f3f6fb;
-  padding: 12px;
-  border-radius: 10px;
   font-size: 14px;
   text-align: left;
+}
+.verified-box {
+  background: #f0f8ff;
+  border: 3px solid #0d6efd;
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
 }
 footer {
   font-size: 12px;
@@ -110,17 +114,66 @@ const beep = document.getElementById("beep");
 const certInput = document.getElementById("certInput");
 const verifyBtn = document.getElementById("verifyBtn");
 
-// 🔹 Embedded certificate data
+// 🔹 Certificate data — now easy to add vertically
 let certData = [
-  {"Name":"Willzen A. Ballen","Certificate Number":"PRIMED-STB-20251101-001","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
-  {"Name":"Howie Jay Carillo","Certificate Number":"PRIMED-STB-20251101-002","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
-  {"Name":"Akio T. Azuelo","Certificate Number":"PRIMED-STB-20251101-003","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
-  {"Name":"Cyrus John V. Tamayosa","Certificate Number":"PRIMED-STB-20251101-004","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
-  {"Name":"Ramdel L. Antonio","Certificate Number":"PRIMED-STB-20251101-005","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
-  {"Name":"Mark Andie B. Natividad","Certificate Number":"PRIMED-STB-20251101-006","Training":"STOP THE BLEED","Venue":"Brgy. 79 Tondo, Manila","Date":"11-01-2025"},
-  {"Name":"Jerald R. Garcia","Certificate Number":"PRIMED-STB-20251211-001","Training":"STOP THE BLEED","Venue":"Brgy. Vergara, Mandaluyong","Date":"12-11-2025"},
-  {"Name":"Leon Zachary Seth D. Santos","Certificate Number":"PRIMED-DRRM-20251227-001","Training":"Intro to DRRM","Venue":"MANDALUYONG CITY","Date":"12-27-2025"}
+  {
+    "Name": "Willzen A. Ballen",
+    "Certificate Number": "PRIMED-STB-20251101-001",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Howie Jay Carillo",
+    "Certificate Number": "PRIMED-STB-20251101-002",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Akio T. Azuelo",
+    "Certificate Number": "PRIMED-STB-20251101-003",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Cyrus John V. Tamayosa",
+    "Certificate Number": "PRIMED-STB-20251101-004",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Ramdel L. Antonio",
+    "Certificate Number": "PRIMED-STB-20251101-005",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Mark Andie B. Natividad",
+    "Certificate Number": "PRIMED-STB-20251101-006",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. 79 Tondo, Manila",
+    "Date": "11-01-2025"
+  },
+  {
+    "Name": "Jerald R. Garcia",
+    "Certificate Number": "PRIMED-STB-20251211-001",
+    "Training": "STOP THE BLEED",
+    "Venue": "Brgy. Vergara, Mandaluyong",
+    "Date": "12-11-2025"
+  },
+  {
+    "Name": "Leon Zachary Seth D. Santos",
+    "Certificate Number": "PRIMED-DRRM-20251227-001",
+    "Training": "Intro to DRRM",
+    "Venue": "MANDALUYONG CITY",
+    "Date": "12-27-2025"
+  }
 ];
+
 let loaded = true;
 
 // 🔹 Event listeners
@@ -142,17 +195,17 @@ function verifyCert(cert){
 
     if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
 
-    // Format date as DD-MM-YYYY
-    const [month, day, year] = found["Date"].split("-");
-    const formattedDate = `${day}-${month}-${year}`;
+    const formattedDate = found["Date"]; // MM-DD-YYYY
 
     res.innerHTML = `
-      <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
-      <b>NAME:</b> ${found["Name"].toUpperCase()}<br>
-      <b>CERTIFICATE #:</b> ${found["Certificate Number"].toUpperCase()}<br>
-      <b>TRAINING:</b> ${found["Training"].toUpperCase()}<br>
-      <b>VENUE:</b> ${found["Venue"].toUpperCase()}<br>
-      <b>DATE:</b> ${formattedDate}
+      <div class="verified-box">
+        <b style="color:green; font-size:16px;">✅ CERTIFICATE VERIFIED ✅</b><br><br>
+        <b>NAME:</b> ${found["Name"].toUpperCase()}<br>
+        <b>CERTIFICATE #:</b> ${found["Certificate Number"].toUpperCase()}<br>
+        <b>TRAINING:</b> ${found["Training"].toUpperCase()}<br>
+        <b>VENUE:</b> ${found["Venue"].toUpperCase()}<br>
+        <b>DATE:</b> ${formattedDate}
+      </div>
     `;
     beep.play();
   }, 200);
