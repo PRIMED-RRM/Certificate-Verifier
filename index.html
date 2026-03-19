@@ -7,36 +7,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <style>
-body{
-  font-family:Roboto,sans-serif;
-  background:linear-gradient(180deg,#eef3f9,#f9fbfd);
-  display:flex;justify-content:center;align-items:center;
-  height:100vh;margin:0;
-}
-.container{
-  background:#fff;padding:26px;border-radius:14px;
-  width:95%;max-width:480px;
-  box-shadow:0 8px 28px rgba(0,0,0,.15);
-  text-align:center;
-}
+body{font-family:Roboto,sans-serif;background:linear-gradient(180deg,#eef3f9,#f9fbfd);display:flex;justify-content:center;align-items:center;height:100vh;margin:0;}
+.container{background:#fff;padding:26px;border-radius:14px;width:95%;max-width:480px;box-shadow:0 8px 28px rgba(0,0,0,.15);text-align:center;}
 .logos{display:flex;justify-content:center;gap:14px;margin-bottom:10px;}
 .logos img{width:75px}
 h2{margin:10px 0;color:#0d6efd;font-size:20px;font-weight:700;text-transform:uppercase;}
-select,input,button{
-  width:100%;padding:10px;margin-bottom:10px;
-  border-radius:8px;border:1px solid #ccc;
-}
-button{
-  background:#0d6efd;color:#fff;border:none;
-  font-weight:600;cursor:pointer;margin-top:4px;
-}
+select,input,button{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ccc;}
+button{background:#0d6efd;color:#fff;border:none;font-weight:600;cursor:pointer;margin-top:4px;}
 #scanner{display:none;margin-top:12px;}
 video{width:100%;border-radius:12px;}
-#result{
-  margin-top:12px;background:#f3f6fb;
-  padding:12px;border-radius:10px;
-  font-size:14px;text-align:left;
-}
+#result{margin-top:12px;background:#f3f6fb;padding:12px;border-radius:10px;font-size:14px;text-align:left;}
 footer{font-size:12px;margin-top:14px;color:#666;}
 </style>
 </head>
@@ -75,123 +55,76 @@ This verification is based solely on PRIMED records and is not government certif
 </footer>
 </div>
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
 <script>
 document.getElementById("year").innerText = new Date().getFullYear();
-
-const API_URL="https://script.google.com/macros/s/AKfycby_IdJ2TdbTjn2q3DmAhsfHk03XemJCGV9fK-vzyI-G1K4zvKK9HODMFQOTbppC4iXj/exec";
 const beep=document.getElementById("beep");
 const certInput=document.getElementById("certInput");
 const trainingFilter=document.getElementById("trainingFilter");
+
+let certData=[];
+
+// Load JSON from GitHub
+fetch('https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/certificates.json')
+  .then(r=>r.json())
+  .then(data=>{ certData=data; console.log('Certificates loaded:', certData.length); })
+  .catch(err=>console.error('Failed to load certificates.json',err));
 
 certInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") verifyCert();
 });
 
 function verifyCert(cert){
-  const c=cert||certInput.value.trim().toUpperCase();
+  const c=(cert||certInput.value).trim().toUpperCase();
   const filter=trainingFilter.value;
   const res=document.getElementById("result");
 
-  if(!c){
-    res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌";
-    return;
-  }
+  if(!c){ res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
+  if(!certData.length){ res.innerHTML="❌ CERTIFICATE DATA NOT LOADED ❌"; return; }
 
   res.innerHTML="VERIFYING…";
 
-  fetch(API_URL+"?cert="+encodeURIComponent(c))
-    .then(r=>r.json())
-    .then(d=>{
-      console.log("API RESPONSE:", d);
+  const found = certData.find(r => (r.certificate||"").toString().trim().toUpperCase()===c);
 
-      if(!d.found){
-        beep.play();
-        res.innerHTML="❌ CERTIFICATE NOT VALID ❌";
-        return;
-      }
+  if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
+  if(filter && found.training.toUpperCase()!==filter.toUpperCase()){ beep.play(); res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌"; return; }
 
-      const name = d.name || "N/A";
-      const certificate = d.certificate || c;
-      const training = d.training || "N/A";
-      const venue = d.venue || "N/A";
-      let formattedDate="N/A";
-      if(d.date){
-        const dt=new Date(d.date);
-        if(!isNaN(dt)){
-          formattedDate=(dt.getMonth()+1).toString().padStart(2,'0')+"-"+
-                        dt.getDate().toString().padStart(2,'0')+"-"+
-                        dt.getFullYear();
-        }
-      }
+  let formattedDate="N/A";
+  if(found.date){ const dt=new Date(found.date); if(!isNaN(dt)) formattedDate=(dt.getMonth()+1).toString().padStart(2,'0')+"-"+dt.getDate().toString().padStart(2,'0')+"-"+dt.getFullYear(); }
 
-      if(filter && training.toUpperCase() !== filter.toUpperCase()){
-        beep.play();
-        res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌";
-        return;
-      }
-
-      res.innerHTML = `
-      <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
-      <b>NAME:</b> ${name.toUpperCase()}<br>
-      <b>CERTIFICATE #:</b> ${certificate.toUpperCase()}<br>
-      <b>TRAINING:</b> ${training.toUpperCase()}<br>
-      <b>VENUE:</b> ${venue.toUpperCase()}<br>
-      <b>DATE:</b> ${formattedDate}
-      `;
-      beep.play();
-    })
-    .catch(err=>{
-      console.error(err);
-      beep.play();
-      res.innerHTML="❌ SERVER ERROR ❌";
-    });
+  res.innerHTML=`
+    <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
+    <b>NAME:</b> ${found.name.toUpperCase()}<br>
+    <b>CERTIFICATE #:</b> ${found.certificate.toUpperCase()}<br>
+    <b>TRAINING:</b> ${found.training.toUpperCase()}<br>
+    <b>VENUE:</b> ${found.venue.toUpperCase()}<br>
+    <b>DATE:</b> ${formattedDate}
+  `;
+  beep.play();
 }
 
-/* QR SCANNER */
+/* QR Scanner */
 let stream=null, scanning=false;
-
 function toggleScanner(){
   const video=document.getElementById("video");
   const scanner=document.getElementById("scanner");
-
-  if(scanning){
-    stream.getTracks().forEach(t=>t.stop());
-    scanner.style.display="none";
-    scanning=false;
-    return;
-  }
-
+  if(scanning){ stream.getTracks().forEach(t=>t.stop()); scanner.style.display="none"; scanning=false; return; }
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
-    .then(s=>{
-      stream=s;
-      video.srcObject=s;
-      scanner.style.display="block";
-      scanning=true;
-      video.onloadedmetadata=()=>{ video.play(); scanLoop(); };
-    })
+    .then(s=>{ stream=s; video.srcObject=s; scanner.style.display="block"; scanning=true; video.onloadedmetadata=()=>{ video.play(); scanLoop(); }; })
     .catch(()=>alert("❌ CAMERA ACCESS DENIED ❌"));
 }
-
 function scanLoop(){
   if(!scanning) return;
   const video=document.getElementById("video");
   const canvas=document.getElementById("canvas");
   const ctx=canvas.getContext("2d");
-
   const scale=400/Math.max(video.videoWidth,video.videoHeight);
   canvas.width=video.videoWidth*scale;
   canvas.height=video.videoHeight*scale;
-
   ctx.drawImage(video,0,0,canvas.width,canvas.height);
   const img=ctx.getImageData(0,0,canvas.width,canvas.height);
   const qr=jsQR(img.data,canvas.width,canvas.height);
-
-  if(qr){
-    certInput.value=qr.data;
-    toggleScanner();
-    verifyCert(qr.data);
-    return;
-  }
+  if(qr){ certInput.value=qr.data; toggleScanner(); verifyCert(qr.data); return; }
   requestAnimationFrame(scanLoop);
 }
 </script>
