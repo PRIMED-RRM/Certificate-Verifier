@@ -92,7 +92,9 @@ This verification is based solely on PRIMED records and is not government certif
 <script>
 document.getElementById("year").innerText = new Date().getFullYear();
 
-const API_URL="https://script.google.com/macros/s/AKfycbxu6qX7Wf9QcP7LAfZXz_8eR8uPNcLHcNFOzV_5v5O6A5bvb4n6OA8Z95A_k6Yi4sYWbw/exec";
+// ✅ UPDATED API
+const API_URL="https://script.google.com/macros/s/AKfycby_IdJ2TdbTjn2q3DmAhsfHk03XemJCGV9fK-vzyI-G1K4zvKK9HODMFQOTbppC4iXj/exec";
+
 const beep=document.getElementById("beep");
 const certInput=document.getElementById("certInput");
 const trainingFilter=document.getElementById("trainingFilter");
@@ -107,7 +109,7 @@ function verifyCert(cert){
   const res=document.getElementById("result");
 
   if(!c){
-    res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌";
+    res.innerHTML="PLEASE ENTER YOUR CERTIFICATE NUMBER";
     return;
   }
 
@@ -116,38 +118,50 @@ function verifyCert(cert){
   fetch(API_URL+"?cert="+encodeURIComponent(c))
     .then(r=>r.json())
     .then(d=>{
+
+      console.log("API RESPONSE:", d); // 🔍 debug
+
       if(!d.found){
         beep.play();
         res.innerHTML="❌ CERTIFICATE NOT VALID ❌";
         return;
       }
 
-      if(filter && d.training.toUpperCase() !== filter.toUpperCase()){
+      // fallback if empty
+      const name = d.name || "N/A";
+      const certificate = d.certificate || c;
+      const training = d.training || "N/A";
+      const venue = d.venue || "N/A";
+
+      if(filter && training.toUpperCase() !== filter.toUpperCase()){
         beep.play();
         res.innerHTML="❌ TRAINING DOES NOT MATCH FILTER ❌";
         return;
       }
 
-      let formattedDate="";
+      let formattedDate="N/A";
       if(d.date){
         const dt=new Date(d.date);
-        formattedDate=(dt.getMonth()+1).toString().padStart(2,'0')+"-"+
-                      dt.getDate().toString().padStart(2,'0')+"-"+
-                      dt.getFullYear();
+        if(!isNaN(dt)){
+          formattedDate=(dt.getMonth()+1).toString().padStart(2,'0')+"-"+
+                        dt.getDate().toString().padStart(2,'0')+"-"+
+                        dt.getFullYear();
+        }
       }
 
       res.innerHTML = `
       <b style="color:green">✅ CERTIFICATE VERIFIED ✅</b><br><br>
-      <b>NAME:</b> ${d.name.toUpperCase()}<br>
-      <b>CERTIFICATE #:</b> ${d.certificate.toUpperCase()}<br>
-      <b>TRAINING:</b> ${d.training.toUpperCase()}<br>
-      <b>VENUE:</b> ${d.venue.toUpperCase()}<br>
+      <b>NAME:</b> ${name.toUpperCase()}<br>
+      <b>CERTIFICATE #:</b> ${certificate.toUpperCase()}<br>
+      <b>TRAINING:</b> ${training.toUpperCase()}<br>
+      <b>VENUE:</b> ${venue.toUpperCase()}<br>
       <b>DATE:</b> ${formattedDate}
       `;
 
       beep.play();
     })
-    .catch(()=>{
+    .catch(err=>{
+      console.error(err);
       beep.play();
       res.innerHTML="❌ SERVER ERROR ❌";
     });
