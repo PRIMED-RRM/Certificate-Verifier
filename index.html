@@ -1,339 +1,497 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>PRIMED Verification System</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- Google Fonts for Bernard MT Condensed -->
+<link href="https://fonts.googleapis.com/css2?family=Bernard+MT+Condensed&display=swap" rel="stylesheet" />
+
+<!-- Google Fonts for Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+
+<!-- Google Fonts for Times New Roman (standard system font) -->
+<!-- No need to import Times New Roman as it's a system font, but we can specify it in CSS -->
+
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 
 <style>
-body{
-  font-family:'Inter',sans-serif;
-  background:#f4f6f9;
-  margin:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f4f6f9;
+  margin: 0;
+  display: flex;
+  justify-content: flex-start; /* align items to the left side */
+  align-items: flex-start; /* align items to the top initially */
+  min-height: 100vh;
+  padding-top: 20px;
 }
 
-.container{
-  width:95%;
-  max-width:550px;
-  background:#fff;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 8px 25px rgba(0,0,0,.08);
+/* Sidebar for logo, vertically centered */
+.logo-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px; /* fixed width for sidebar */
+  position: fixed; /* fix position to stay in place if needed */
+  top: 50%;
+  transform: translateY(-50%);
+  height: 100%; /* full height */
+  background: transparent; /* no background needed */
 }
 
-h1{
-  text-align:center;
-  font-size:18px;
-  margin-bottom:15px;
+/* Container styling */
+.container {
+  margin-left: 120px; /* leave space for sidebar */
+  width: calc(100% - 120px);
+  max-width: 700px; /* wider for better layout */
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center all items horizontally */
 }
 
-.tabs{
-  display:flex;
-  border-bottom:1px solid #ddd;
-  margin-bottom:15px;
+/* Logo styling, centered vertically in sidebar */
+.header-logo {
+  width: 80px; /* larger for better visibility */
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: #fff;
+  padding: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
 }
 
-.tabs button{
-  flex:1;
-  padding:10px;
-  border:none;
-  background:none;
-  cursor:pointer;
+/* Title style - centered below logo, Bernard MT Condensed font */
+h1 {
+  text-align: center;
+  font-family: 'Bernard MT Condensed', sans-serif;
+  font-size: 20px;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+  color: #222;
 }
 
-.tabs button.active{
-  border-bottom:2px solid black;
-  font-weight:600;
+/* Tabs styles remain same */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  width: 100%;
+  margin-bottom: 15px;
 }
 
-input{
-  width:100%;
-  padding:10px;
-  margin-bottom:8px;
-  border-radius:8px;
-  border:1px solid #ccc;
+.tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+  font-size: 14px;
 }
 
-button{
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  margin-bottom:6px;
+.tabs button:hover {
+  background: #f0f0f0;
 }
 
-.main{background:black;color:white;}
-.sec{background:#ddd;}
-
-#result{margin-top:10px;}
-
-.card{
-  border:1px solid #ddd;
-  border-left:4px solid green;
-  padding:10px;
-  border-radius:8px;
-  margin-bottom:8px;
+.tabs button.active {
+  border-bottom: 2px solid black;
+  font-weight: 700;
 }
 
-/* ADMIN */
-.admin{
-  margin-top:20px;
-  padding-top:15px;
-  border-top:1px solid #ddd;
+/* Input styles */
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
 }
 
-.admin h2{
-  font-size:14px;
-  margin-bottom:10px;
+/* Buttons styles */
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 6px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  transition: background 0.2s;
+  font-size: 14px;
 }
 
-.list-item{
-  font-size:12px;
-  border-bottom:1px solid #eee;
-  padding:6px 0;
+button:hover {
+  background: #e0e0e0;
 }
 
-.small-btn{
-  width:auto;
-  padding:4px 6px;
-  font-size:11px;
-  margin-left:5px;
+/* Main and secondary buttons colors */
+.main {
+  background-color: #007bff;
+  color: #fff;
+}
+.sec {
+  background-color: #6c757d;
+  color: #fff;
+}
+.main:hover {
+  background-color: #0069d9;
+}
+.sec:hover {
+  background-color: #5a6268;
+}
+
+/* Result area styling - Times New Roman font */
+#result {
+  margin-top: 15px;
+  width: 100%;
+  font-family: 'Times New Roman', serif;
+}
+
+/* Card style for results */
+.card {
+  border: 1px solid #ddd;
+  border-left: 4px solid green;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #fafafa;
+  font-family: 'Times New Roman', serif;
+}
+
+/* Admin panel styling, hidden initially */
+.admin {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+  display: none;
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 8px;
+  width: 100%;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+/* Admin header style */
+.admin h2 {
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* List inside admin */
+#list {
+  margin-top: 10px;
+}
+.list-item {
+  font-size: 12px;
+  border-bottom: 1px solid #eee;
+  padding: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.small-btn {
+  width: auto;
+  padding: 4px 6px;
+  font-size: 11px;
+  margin-left: 5px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.small-btn:hover {
+  background: #ddd;
+}
+
+/* Scanner overlay */
+#scanner {
+  display: none;
+  margin-top: 15px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+#video {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 </style>
 </head>
-
 <body>
 
+<!-- Sidebar for logo, vertically centered -->
+<div class="logo-sidebar">
+  <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/refs/heads/main/PRIMED%20Logo%201.png" alt="PRIMED Logo" class="header-logo" />
+</div>
+
+<!-- Container for main content -->
 <div class="container">
 
+<!-- Title with Bernard MT Condensed font -->
 <h1>PRIMED CERTIFICATE VERIFIER</h1>
 
+<!-- Toggle admin panel -->
+<div style="text-align:center; margin-bottom:10px;">
+  <button onclick="toggleAdmin()" style="padding:6px 12px; font-weight:600;">Admin Panel</button>
+</div>
+
+<!-- Tabs: Certificate No. and Name -->
 <div class="tabs">
-  <button class="active" onclick="tab(event,'cert')">CERT</button>
+  <button class="active" onclick="tab(event,'cert')">CERTIFICATE NO.</button>
   <button onclick="tab(event,'name')">NAME</button>
 </div>
 
-<div id="certTab">
-  <input id="certInput" placeholder="Certificate Number">
+<!-- Certificate No. input -->
+<div id="cert">
+  <input id="certInput" placeholder="Certificate Number" />
   <button class="main" onclick="verify()">Verify</button>
   <button class="sec" onclick="scanQR()">Scan QR</button>
 </div>
 
-<div id="nameTab" style="display:none;">
-  <input id="nameInput" placeholder="Search Name">
+<!-- Name search -->
+<div id="name" style="display:none;">
+  <input id="nameInput" placeholder="Search Name" />
   <button class="main" onclick="search()">Search</button>
 </div>
 
-<div id="scanner" style="display:none;">
+<!-- QR code scanner overlay -->
+<div id="scanner">
   <video id="video" autoplay></video>
-  <canvas id="canvas" hidden></canvas>
 </div>
 
+<!-- Result display -->
 <div id="result"></div>
 
-<!-- ADMIN PANEL -->
-<div class="admin">
+<!-- Admin Panel -->
+<div class="admin" id="adminPanel">
 <h2>ADMIN PANEL</h2>
-
-<input id="aName" placeholder="Name">
-<input id="aCert" placeholder="Certificate Number">
-<input id="aTrain" placeholder="Training">
-<input id="aDate" placeholder="Date">
-
+<!-- Admin inputs -->
+<div style="display:flex; flex-direction:column; gap:8px;">
+<input id="aName" placeholder="Name" />
+<input id="aCert" placeholder="Certificate Number" />
+<input id="aTrain" placeholder="Training" />
+<input id="aVenue" placeholder="Venue" />
+<input id="aDate" placeholder="Date" />
+</div>
+<!-- Add button -->
+<div style="margin-top:10px; display:flex; gap:10px; justify-content:center;">
 <button class="main" onclick="add()">Add Trainee</button>
-
+</div>
+<!-- List of entries -->
 <div id="list"></div>
 </div>
 
 </div>
 
+<!-- Audio for feedback -->
 <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
 <script>
-const beep=document.getElementById("beep");
+const beep = document.getElementById("beep");
 
-/* 🔥 FULL DATA (PABABA / VERTICAL) */
+/* Data array initialization */
 let certData = JSON.parse(localStorage.getItem("certData")) || [
-
-{ "Name":"Willzen A. Ballen",
-  "Certificate Number":"PRIMED-STB-20251101-001",
-  "Training":"STOP THE BLEED",
-  "Date":"11-01-2025"
-},
-{ "Name":"Howie Jay Carillo",
- "Certificate Number":"PRIMED-STB-20251101-002",
- "Training":"STOP THE BLEED","Date":"11-01-2025"
-},
-{ "Name":"Akio T. Azuelo",
- "Certificate Number":"PRIMED-STB-20251101-003",
- "Training":"STOP THE BLEED",
- "Date":"11-01-2025"
-},
-{ "Name":"Cyrus John V. Tamayosa",
- "Certificate Number":"PRIMED-STB-20251101-004",
- "Training":"STOP THE BLEED",
- "Date":"11-01-2025"
-},
-{ "Name":"Ramdel L. Antonio",
- "Certificate Number":"PRIMED-STB-20251101-005",
- "Training":"STOP THE BLEED",
- "Date":"11-01-2025" },
-{ "Name":"Mark Andie B. Natividad",
- "Certificate Number":"PRIMED-STB-20251101-006",
- "Training":"STOP THE BLEED",
- "Date":"11-01-2025"
-},
-{ "Name":"Jerald R. Garcia",
- "Certificate Number":"PRIMED-STB-20251211-001",
- "Training":"STOP THE BLEED",
- "Date":"12-11-2025"
-},
-{ "Name":"Leon Zachary Seth D. Santos",
- "Certificate Number":"PRIMED-DRRM-20251227-001",
- "Training":"Intro to DRRM",
- "Date":"12-27-2025"
-}
-
+  { "Name":"Willzen A. Ballen", "Certificate Number":"PRIMED-STB-20251101-001", "Training":"STOP THE BLEED", "Venue":"Brgy. 79 Tondo, Manila", "Date":"11-01-2025" },
+  { "Name":"Howie Jay Carillo", "Certificate Number":"PRIMED-STB-20251101-002", "Training":"STOP THE BLEED", "Venue":"Brgy. 79 Tondo, Manila", "Date":"11-01-2025" },
+  { "Name":"Akio T. Azuelo", "Certificate Number":"PRIMED-STB-20251101-003", "Training":"STOP THE BLEED", "Venue":"Brgy. 79 Tondo, Manila", "Date":"11-01-2025" },
+  { "Name":"Cyrus John V. Tamayosa", "Certificate Number":"PRIMED-STB-20251101-004", "Training":"STOP THE BLEED", "Venue":"Brgy. 79 Tondo, Manila", "Date":"11-01-2025" },
+  { "Name":"Ramdel L. Antonio", "Certificate Number":"PRIMED-STB-20251101-005", "Training":"STOP THE BLEED", "Venue":"Brgy. 79 Tondo, Manila", "Date":"11-01-2025" },
+  { "Name":"Mark Andie B. Natividad", "Certificate Number":"PRIMED-STB-20251101-006", "Training":"STOP THE BLEED", "Venue":"Brgy. 79 Tondo, Manila", "Date":"11-01-2025" },
+  { "Name":"Jerald R. Garcia", "Certificate Number":"PRIMED-STB-20251211-001", "Training":"STOP THE BLEED", "Venue":"Brgy. Vergara, Mandaluyong", "Date":"12-11-2025" },
+  { "Name":"Leon Zachary Seth D. Santos", "Certificate Number":"PRIMED-DRRM-20251227-001", "Training":"Intro to DRRM", "Venue":"Mandaluyong City", "Date":"12-27-2025" }
 ];
 
-/* SAVE */
-function save(){
-  localStorage.setItem("certData",JSON.stringify(certData));
+/* Save data function */
+function save() {
+  localStorage.setItem("certData", JSON.stringify(certData));
 }
 
-/* TAB */
-function tab(e,t){
-  document.getElementById("certTab").style.display=t=="cert"?"block":"none";
-  document.getElementById("nameTab").style.display=t=="name"?"block":"none";
-  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+/* Toggle admin panel visibility */
+function toggleAdmin() {
+  const adminDiv = document.getElementById("adminPanel");
+  adminDiv.style.display = (adminDiv.style.display === "none" || adminDiv.style.display === "") ? "block" : "none";
+}
+
+/* Tabs switch function */
+function tab(e, t) {
+  document.getElementById("cert").style.display = t === "cert" ? "block" : "none";
+  document.getElementById("name").style.display = t === "name" ? "block" : "none";
+
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
   e.target.classList.add("active");
 }
 
-/* VERIFY */
-function verify(){
-  let val=document.getElementById("certInput").value.toUpperCase().trim();
-  let f=certData.find(r=>r["Certificate Number"].toUpperCase()==val);
-
-  if(!f){
-    document.getElementById("result").innerHTML="NOT FOUND ❌";
-    beep.play();return;
+/* Verify certificate number */
+function verify() {
+  const val = document.getElementById("certInput").value.toUpperCase().trim();
+  if (!val) {
+    document.getElementById("result").innerHTML = "PLEASE ENTER CERTIFICATE NUMBER";
+    return;
+  }
+  const f = certData.find(r => r["Certificate Number"].toUpperCase() === val);
+  if (!f) {
+    document.getElementById("result").innerHTML = "NOT FOUND ❌";
+    beep.play();
+    return;
   }
   show([f]);
 }
 
-/* SEARCH */
-function search(){
-  let name=document.getElementById("nameInput").value.toUpperCase();
-  let res=certData.filter(r=>r.Name.toUpperCase().includes(name));
-
-  if(res.length==0){
-    document.getElementById("result").innerHTML="NO RESULT ❌";
-    beep.play();return;
+/* Search by name */
+function search() {
+  const name = document.getElementById("nameInput").value.trim();
+  if (!name) {
+    document.getElementById("result").innerHTML = "PLEASE ENTER NAME";
+    return;
+  }
+  const res = certData.filter(r => r.Name.toUpperCase().includes(name.toUpperCase()));
+  if (res.length === 0) {
+    document.getElementById("result").innerHTML = "NO RESULT ❌";
+    beep.play();
+    return;
   }
   show(res);
 }
 
-/* SHOW */
-function show(list){
-  let html="VERIFIED ✅<br><br>";
-  list.forEach(r=>{
-    html+=`
+/* Show result with labels (including Venue and Training) */
+function show(list) {
+  if (!list || list.length === 0) {
+    document.getElementById("result").innerHTML = "NO RESULT ❌";
+    beep.play();
+    return;
+  }
+  let html = "";
+  list.forEach(r => {
+    html += `
     <div class="card">
-    <b>${r.Name}</b><br>
-    ${r["Certificate Number"]}<br>
-    ${r.Training}<br>
-    ${r.Date}
+      <b>NAME:</b> ${r.Name}<br>
+      <b>CERTIFICATE NO.:</b> ${r["Certificate Number"]}<br>
+      <b>TRAINING:</b> ${r.Training}<br>
+      <b>VENUE:</b> ${r.Venue || "N/A"}<br>
+      <b>DATE:</b> ${r.Date}
     </div>`;
   });
-  document.getElementById("result").innerHTML=html;
+  document.getElementById("result").innerHTML = html;
   beep.play();
 }
 
-/* ADMIN ADD */
-function add(){
-  let n=document.getElementById("aName").value;
-  let c=document.getElementById("aCert").value;
-  let t=document.getElementById("aTrain").value;
-  let d=document.getElementById("aDate").value;
+/* Add new record (admin) */
+function add() {
+  const n = document.getElementById("aName").value.trim();
+  const c = document.getElementById("aCert").value.trim();
+  const t = document.getElementById("aTrain").value.trim();
+  const v = document.getElementById("aVenue").value.trim();
+  const d = document.getElementById("aDate").value.trim();
 
-  certData.push({Name:n,"Certificate Number":c,Training:t,Date:d});
+  if (!n || !c || !t || !v || !d) {
+    alert("Please fill in all fields");
+    return;
+  }
+
+  certData.push({ Name: n, "Certificate Number": c, Training: t, Venue: v, Date: d });
+  save();
+
+  // Clear inputs
+  document.querySelectorAll("#aName, #aCert, #aTrain, #aVenue, #aDate").forEach(el => el.value='');
+
+  renderList();
+}
+
+/* Delete record */
+function del(i) {
+  certData.splice(i, 1);
   save();
   renderList();
 }
 
-/* DELETE */
-function del(i){
-  certData.splice(i,1);
-  save();
-  renderList();
-}
-
-/* EDIT */
-function edit(i){
-  let r=certData[i];
-  document.getElementById("aName").value=r.Name;
-  document.getElementById("aCert").value=r["Certificate Number"];
-  document.getElementById("aTrain").value=r.Training;
-  document.getElementById("aDate").value=r.Date;
-
+/* Edit record */
+function edit(i) {
+  let r = certData[i];
+  document.getElementById("aName").value = r.Name;
+  document.getElementById("aCert").value = r["Certificate Number"];
+  document.getElementById("aTrain").value = r.Training;
+  document.getElementById("aVenue").value = r.Venue;
+  document.getElementById("aDate").value = r.Date;
+  // Remove from list temporarily
   del(i);
 }
 
-/* LIST */
-function renderList(){
-  let html="";
-  certData.forEach((r,i)=>{
-    html+=`
+/* Render admin list */
+function renderList() {
+  let html = "";
+  certData.forEach((r, i) => {
+    html += `
     <div class="list-item">
-    ${r.Name}
-    <button class="small-btn" onclick="edit(${i})">Edit</button>
-    <button class="small-btn" onclick="del(${i})">X</button>
+      ${r.Name}
+      <div>
+        <button class="small-btn" onclick="edit(${i})">Edit</button>
+        <button class="small-btn" onclick="del(${i})">X</button>
+      </div>
     </div>`;
   });
-  document.getElementById("list").innerHTML=html;
+  document.getElementById("list").innerHTML = html;
 }
-
 renderList();
 
-/* QR */
-let stream=null;
-function scanQR(){
-  const v=document.getElementById("video");
-  const s=document.getElementById("scanner");
+// Add ENTER key event for search input
+document.getElementById("nameInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    search();
+  }
+});
 
-  navigator.mediaDevices.getUserMedia({video:true}).then(st=>{
-    stream=st;
-    v.srcObject=st;
-    s.style.display="block";
-    v.onloadedmetadata=()=>loop();
+/* QR code scanning */
+let stream = null;
+
+function scanQR() {
+  const v = document.getElementById("video");
+  const s = document.getElementById("scanner");
+  s.style.display = "block";
+
+  navigator.mediaDevices.getUserMedia({ video: true }).then(st => {
+    stream = st;
+    v.srcObject = st;
+    v.play();
+    requestAnimationFrame(loop);
+  }).catch(e => {
+    alert("Camera access denied");
   });
 }
 
-function loop(){
-  const v=document.getElementById("video");
-  const c=document.getElementById("canvas");
-  const ctx=c.getContext("2d");
+function loop() {
+  const v = document.getElementById("video");
+  const c = document.createElement("canvas");
+  c.width = v.videoWidth;
+  c.height = v.videoHeight;
+  const ctx = c.getContext("2d");
+  ctx.drawImage(v, 0, 0);
 
-  c.width=v.videoWidth;
-  c.height=v.videoHeight;
-  ctx.drawImage(v,0,0);
+  const imageData = ctx.getImageData(0, 0, c.width, c.height);
+  const qrCode = jsQR(imageData.data, c.width, c.height);
 
-  let img=ctx.getImageData(0,0,c.width,c.height);
-  let qr=jsQR(img.data,c.width,c.height);
-
-  if(qr){
-    document.getElementById("certInput").value=qr.data;
+  if (qrCode) {
+    document.getElementById("certInput").value = qrCode.data;
     verify();
-    stream.getTracks().forEach(t=>t.stop());
-    document.getElementById("scanner").style.display="none";
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+    }
+    document.getElementById("scanner").style.display = "none";
     return;
   }
   requestAnimationFrame(loop);
