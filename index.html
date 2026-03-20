@@ -294,18 +294,15 @@ let certData = JSON.parse(localStorage.getItem("certData")) || [
   { "Name":"Mark Andie B. Natividad", "Certificate Number":"PRIMED-STB-20251101-006", "Training":"STOP THE BLEED", "Venue":"Brgy. 79 Tondo, Manila", "Date":"11-01-2025" },
   { "Name":"Jerald R. Garcia", "Certificate Number":"PRIMED-STB-20251211-001", "Training":"STOP THE BLEED", "Venue":"Brgy. Vergara, Mandaluyong", "Date":"12-11-2025" },
   { "Name":"Leon Zachary Seth D. Santos", "Certificate Number":"PRIMED-DRRM-20251227-001", "Training":"Intro to DRRM", "Venue":"Mandaluyong City", "Date":"12-27-2025" }
-  // Note: Missing comma added here
+  { "Name":"Vincent R. Garcia", "Certificated Number":"BOSH-1720-2025-0963", "Training":"BOSH Safety Officer 2", "Venue":"Mastery Online Platform (Zoom)", "Date":"06-12/17-2025"}
 ];
-
 function save() {
   localStorage.setItem("certData", JSON.stringify(certData));
 }
-
 function toggleAdmin() {
   const adminDiv = document.getElementById("adminPanel");
   adminDiv.style.display = (adminDiv.style.display === "none" || adminDiv.style.display === "") ? "block" : "none";
 }
-
 function tab(e, t) {
   document.getElementById("cert").style.display = t === "cert" ? "block" : "none";
   document.getElementById("name").style.display = t === "name" ? "block" : "none";
@@ -313,7 +310,6 @@ function tab(e, t) {
   document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
   e.target.classList.add("active");
 }
-
 function verify() {
   const val = document.getElementById("certInput").value.toUpperCase().trim();
   if (!val) {
@@ -328,7 +324,6 @@ function verify() {
   }
   show([f]);
 }
-
 function search() {
   const name = document.getElementById("nameInput").value.trim();
   if (!name) {
@@ -343,7 +338,6 @@ function search() {
   }
   show(res);
 }
-
 function show(list) {
   if (!list || list.length === 0) {
     document.getElementById("result").innerHTML = "NO RESULT ❌";
@@ -364,7 +358,6 @@ function show(list) {
   document.getElementById("result").innerHTML = html;
   beep.play();
 }
-
 function add() {
   const n = document.getElementById("aName").value.trim();
   const c = document.getElementById("aCert").value.trim();
@@ -382,23 +375,14 @@ function add() {
 
   document.querySelectorAll("#aName, #aCert, #aTrain, #aVenue, #aDate").forEach(el => el.value='');
 
-  // Call update list if needed
-  updateVerificationList();
-
+  // Update list if needed
   renderList();
 }
-
-// Placeholder for future enhancement
-function updateVerificationList() {
-  // Optional: update verification list display if needed
-}
-
 function del(i) {
   certData.splice(i, 1);
   save();
   renderList();
 }
-
 function edit(i) {
   let r = certData[i];
   document.getElementById("aName").value = r.Name;
@@ -408,7 +392,6 @@ function edit(i) {
   document.getElementById("aDate").value = r.Date;
   del(i);
 }
-
 function renderList() {
   let html = "";
   certData.forEach((r, i) => {
@@ -437,8 +420,58 @@ document.getElementById("nameInput").addEventListener("keydown", function(e) {
   }
 });
 
-// Rest of your code...
-// (scanQR functions and other logic omitted for brevity)
+// QR code scanner implementation
+let videoStream;
+const video = document.getElementById('video');
+
+function scanQR() {
+  document.getElementById('scanner').style.display = 'block';
+  startScan();
+}
+
+function startScan() {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+    .then(function(stream) {
+      videoStream = stream;
+      video.srcObject = stream;
+      video.setAttribute("playsinline", true); // for iOS
+      video.play();
+      requestAnimationFrame(tick);
+    })
+    .catch(function(err) {
+      alert("Camera permission denied or not available");
+      document.getElementById('scanner').style.display = 'none';
+    });
+}
+
+function tick() {
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, canvas.width, canvas.height);
+    if (code) {
+      stopScan();
+      document.getElementById('certInput').value = code.data;
+      verify();
+      return; // stop scanning after success
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function stopScan() {
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+  }
+  document.getElementById('scanner').style.display = 'none';
+}
+
+// Optional: automatically stop scanner after a timeout or user action
+
 </script>
 
 </body>
