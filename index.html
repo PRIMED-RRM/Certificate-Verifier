@@ -4,71 +4,109 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PRIMED CERTIFICATE VERIFIER</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+
 <style>
 body {
   font-family: Roboto, sans-serif;
-  background: linear-gradient(180deg,#eef3f9,#f9fbfd);
+  background: linear-gradient(135deg,#e3f0ff,#f9fbfd);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
-  overflow: hidden;
 }
+
 .container {
   background: #fff;
-  padding: 26px;
-  border-radius: 14px;
+  padding: 28px;
+  border-radius: 16px;
   width: 95%;
-  max-width: 480px;
-  box-shadow: 0 8px 28px rgba(0,0,0,.15);
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
   text-align: center;
 }
+
 .logos {
   display: flex;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   margin-bottom: 10px;
 }
-.logos img { width: 75px; }
+.logos img { width: 70px; }
+
 h2 {
-  margin: 10px 0;
   color: #0d6efd;
   font-size: 20px;
-  font-weight: 700;
-  text-transform: uppercase;
+  margin-bottom: 15px;
 }
-input, button {
+
+/* Tabs */
+.tabs {
+  display: flex;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+.tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: #f1f1f1;
+  cursor: pointer;
+  font-weight: 600;
+}
+.tabs button.active {
+  background: #0d6efd;
+  color: white;
+}
+
+/* Inputs */
+input, select {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
 }
-button {
-  background: #0d6efd;
-  color: #fff;
+
+/* Buttons */
+button.main-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
   border: none;
+  background: #0d6efd;
+  color: white;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 4px;
 }
+button.main-btn:hover { background: #0b5ed7; }
+
+button.secondary {
+  background: #6c757d;
+}
+button.secondary:hover { background: #5a6268; }
+
 #scanner { display: none; margin-top: 12px; }
 video { width: 100%; border-radius: 12px; }
+
 #result {
   margin-top: 12px;
   font-size: 14px;
   text-align: left;
 }
+
 .verified-box {
   background: #f0f8ff;
   border: 3px solid #0d6efd;
   padding: 14px;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
 }
+
 footer {
   font-size: 12px;
   margin-top: 14px;
@@ -76,8 +114,10 @@ footer {
 }
 </style>
 </head>
+
 <body>
 <div class="container">
+
   <div class="logos">
     <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/PRIMED%20Logo%201.png">
     <img src="https://raw.githubusercontent.com/PRIMED-RRM/primedrrmverifier/main/BackgroundEraser_20251102_093006990.png">
@@ -85,11 +125,25 @@ footer {
 
   <h2>CERTIFICATE VERIFIER</h2>
 
-  <input id="certInput" placeholder="ENTER YOUR CERTIFICATE NUMBER">
+  <div class="tabs">
+    <button class="active" onclick="switchTab(event,'cert')">CERT #</button>
+    <button onclick="switchTab(event,'name')">NAME</button>
+  </div>
 
-  <div>
-    <button id="verifyBtn">VERIFY IT</button>
-    <button onclick="toggleScanner()">SCAN QR CODE</button>
+  <!-- CERT SEARCH -->
+  <div id="certTab">
+    <input id="certInput" placeholder="ENTER CERTIFICATE NUMBER">
+    <button class="main-btn" onclick="verifyCert()">VERIFY</button>
+    <button class="main-btn secondary" onclick="toggleScanner()">SCAN QR</button>
+  </div>
+
+  <!-- NAME SEARCH -->
+  <div id="nameTab" style="display:none;">
+    <input id="nameInput" placeholder="ENTER NAME">
+    <select id="trainingFilter">
+      <option value="">ALL TRAININGS</option>
+    </select>
+    <button class="main-btn" onclick="searchByName()">SEARCH</button>
   </div>
 
   <div id="scanner">
@@ -100,22 +154,22 @@ footer {
   <div id="result"></div>
 
   <footer>
-    This verification is based solely on PRIMED records and is not government certification nor international accreditation/certification.
+    This verification is based solely on PRIMED records.
     <br><br>
-    ©<span id="year"></span> PRIMEDRRMTS & ACER-FRCI | All rights reserved.
+    ©<span id="year"></span> PRIMEDRRMTS
   </footer>
+
 </div>
 
-<audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+<audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
 <script>
 document.getElementById("year").innerText = new Date().getFullYear();
 const beep = document.getElementById("beep");
-const certInput = document.getElementById("certInput");
-const verifyBtn = document.getElementById("verifyBtn");
 
-// 🔹 Certificate data — vertical, easy to add
+/* 🔥 PABABA / CLEAN FORMAT */
 let certData = [
+
   {
     "Name": "Willzen A. Ballen",
     "Certificate Number": "PRIMED-STB-20251101-001",
@@ -123,6 +177,7 @@ let certData = [
     "Venue": "Brgy. 79 Tondo, Manila",
     "Date": "11-01-2025"
   },
+
   {
     "Name": "Howie Jay Carillo",
     "Certificate Number": "PRIMED-STB-20251101-002",
@@ -130,6 +185,7 @@ let certData = [
     "Venue": "Brgy. 79 Tondo, Manila",
     "Date": "11-01-2025"
   },
+
   {
     "Name": "Akio T. Azuelo",
     "Certificate Number": "PRIMED-STB-20251101-003",
@@ -137,6 +193,7 @@ let certData = [
     "Venue": "Brgy. 79 Tondo, Manila",
     "Date": "11-01-2025"
   },
+
   {
     "Name": "Cyrus John V. Tamayosa",
     "Certificate Number": "PRIMED-STB-20251101-004",
@@ -144,6 +201,7 @@ let certData = [
     "Venue": "Brgy. 79 Tondo, Manila",
     "Date": "11-01-2025"
   },
+
   {
     "Name": "Ramdel L. Antonio",
     "Certificate Number": "PRIMED-STB-20251101-005",
@@ -151,6 +209,7 @@ let certData = [
     "Venue": "Brgy. 79 Tondo, Manila",
     "Date": "11-01-2025"
   },
+
   {
     "Name": "Mark Andie B. Natividad",
     "Certificate Number": "PRIMED-STB-20251101-006",
@@ -158,6 +217,7 @@ let certData = [
     "Venue": "Brgy. 79 Tondo, Manila",
     "Date": "11-01-2025"
   },
+
   {
     "Name": "Jerald R. Garcia",
     "Certificate Number": "PRIMED-STB-20251211-001",
@@ -165,6 +225,7 @@ let certData = [
     "Venue": "Brgy. Vergara, Mandaluyong",
     "Date": "12/11/2025"
   },
+
   {
     "Name": "Leon Zachary Seth D. Santos",
     "Certificate Number": "PRIMED-DRRM-20251227-001",
@@ -172,89 +233,131 @@ let certData = [
     "Venue": "MANDALUYONG CITY",
     "Date": "12-27-2025"
   }
+
 ];
 
-let loaded = true;
+/* Populate Training Filter */
+const trainingSet = [...new Set(certData.map(d => d["Training"]))];
+const filter = document.getElementById("trainingFilter");
 
-// 🔹 Event listeners
-certInput.addEventListener("keydown", e => { if(e.key === "Enter") verifyCert(); });
-verifyBtn.addEventListener("click", () => verifyCert());
+trainingSet.forEach(t=>{
+  const opt = document.createElement("option");
+  opt.value = t;
+  opt.textContent = t;
+  filter.appendChild(opt);
+});
 
-// 🔹 Verification function
-function verifyCert(cert){
-  const c = (cert || certInput.value).trim().toUpperCase().replace(/\s/g,"");
-  const res = document.getElementById("result");
+/* TAB SWITCH */
+function switchTab(evt, tab){
+  document.getElementById("certTab").style.display = tab==="cert"?"block":"none";
+  document.getElementById("nameTab").style.display = tab==="name"?"block":"none";
 
-  if(!c){ res.innerHTML="❌ PLEASE ENTER YOUR CERTIFICATE NUMBER ❌"; return; }
-  if(!loaded){ res.innerHTML="❌ CERTIFICATE DATA NOT LOADED ❌"; return; }
-
-  res.innerHTML = "VERIFYING…";
-
-  setTimeout(()=>{
-    const found = certData.find(r => (r["Certificate Number"]||"").toUpperCase().replace(/\s/g,"") === c);
-
-    if(!found){ beep.play(); res.innerHTML="❌ CERTIFICATE NOT VALID ❌"; return; }
-
-    // ✅ MM-DD-YYYY, auto-convert slashes to dashes
-    const formattedDate = (found["Date"] || "").replaceAll("/", "-");
-
-    res.innerHTML = `
-      <div class="verified-box">
-        <b style="color:green; font-size:16px;">✅ CERTIFICATE VERIFIED ✅</b><br><br>
-        <b>NAME:</b> ${found["Name"].toUpperCase()}<br>
-        <b>CERTIFICATE #:</b> ${found["Certificate Number"].toUpperCase()}<br>
-        <b>TRAINING:</b> ${found["Training"].toUpperCase()}<br>
-        <b>VENUE:</b> ${found["Venue"].toUpperCase()}<br>
-        <b>DATE:</b> ${formattedDate}
-      </div>
-    `;
-    beep.play();
-  }, 200);
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  evt.target.classList.add("active");
 }
 
-// 🔹 QR Scanner
-let stream = null, scanning = false;
-function toggleScanner(){
-  const video = document.getElementById("video");
-  const scanner = document.getElementById("scanner");
+/* VERIFY CERT */
+function verifyCert(){
+  const val = document.getElementById("certInput").value.toUpperCase().trim();
+  const res = document.getElementById("result");
 
-  if(scanning){ 
-    stream.getTracks().forEach(t=>t.stop()); 
-    scanner.style.display="none"; 
-    scanning=false; 
-    return; 
+  const found = certData.find(r =>
+    r["Certificate Number"].toUpperCase() === val
+  );
+
+  if(!found){
+    res.innerHTML="NOT FOUND ❌";
+    beep.play();
+    return;
+  }
+
+  showResult([found]);
+}
+
+/* SEARCH NAME */
+function searchByName(){
+  const name = document.getElementById("nameInput").value.toUpperCase();
+  const training = document.getElementById("trainingFilter").value;
+
+  let results = certData.filter(r =>
+    r.Name.toUpperCase().includes(name)
+  );
+
+  if(training){
+    results = results.filter(r => r["Training"] === training);
+  }
+
+  if(results.length === 0){
+    document.getElementById("result").innerHTML = "NO RESULTS ❌";
+    beep.play();
+    return;
+  }
+
+  showResult(results);
+}
+
+/* SHOW RESULT */
+function showResult(list){
+  let html = `<div class="verified-box"><b style="color:green;">VERIFIED RESULTS ✅</b><br><br>`;
+  
+  list.forEach(r=>{
+    html += `
+    <b>NAME:</b> ${r["Name"]}<br>
+    <b>CERTIFICATE NO.:</b> ${r["Certificate Number"]}<br>
+    <b>TRAINING:</b> ${r["Training"]}<br>
+    <b>DATE:</b> ${r["Date"].replaceAll("/", "-")}<br><br>
+    `;
+  });
+
+  html += "</div>";
+  document.getElementById("result").innerHTML = html;
+  beep.play();
+}
+
+/* QR SCANNER */
+let stream=null, scanning=false;
+
+function toggleScanner(){
+  const video=document.getElementById("video");
+  const scanner=document.getElementById("scanner");
+
+  if(scanning){
+    stream.getTracks().forEach(t=>t.stop());
+    scanner.style.display="none";
+    scanning=false;
+    return;
   }
 
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
-    .then(s => { 
-      stream = s; 
-      video.srcObject = s; 
-      scanner.style.display="block"; 
-      scanning=true; 
-      video.onloadedmetadata = () => { video.play(); scanLoop(); }; 
-    })
-    .catch(()=>alert("❌ CAMERA ACCESS DENIED ❌"));
+  .then(s=>{
+    stream=s;
+    video.srcObject=s;
+    scanner.style.display="block";
+    scanning=true;
+    video.onloadedmetadata=()=>{video.play(); scanLoop();};
+  });
 }
 
 function scanLoop(){
   if(!scanning) return;
-  const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const video=document.getElementById("video");
+  const canvas=document.getElementById("canvas");
+  const ctx=canvas.getContext("2d");
 
-  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const qr = jsQR(img.data, canvas.width, canvas.height);
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  ctx.drawImage(video,0,0);
+
+  const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const qr=jsQR(img.data,canvas.width,canvas.height);
 
   if(qr){
-    certInput.value = qr.data;
-    verifyCert(qr.data);
-    scanning = false;
-    stream.getTracks().forEach(t => t.stop());
-    document.getElementById("scanner").style.display = "none";
+    document.getElementById("certInput").value=qr.data;
+    verifyCert();
+    scanning=false;
+    stream.getTracks().forEach(t=>t.stop());
+    document.getElementById("scanner").style.display="none";
     return;
   }
 
